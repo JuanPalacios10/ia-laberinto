@@ -1,16 +1,16 @@
 class Node:
     def __init__(self, position: tuple[int, int], parent=None):
-        self._position: tuple[int, int] = position
-        self._parent = parent
+        self.__position: tuple[int, int] = position
+        self.__parent = parent
 
     def get_position(self) -> tuple[int, int]:
-        return self._position
+        return self.__position
 
     def set_position(self, position: tuple[int, int]):
-        self._position = position
+        self.__position = position
 
     def get_parent(self):
-        return self._parent
+        return self.__parent
 
 
 class NodeH(Node):
@@ -18,14 +18,14 @@ class NodeH(Node):
         self, position: tuple[int, int], parent=None, cost: int = 0, heuristic: int = 0
     ):
         super().__init__(position, parent)
-        self._cost = cost
-        self._heuristic = heuristic
+        self.__cost = cost
+        self.__heuristic = heuristic
 
     def get_cost(self) -> int:
-        return self._cost
+        return self.__cost
 
     def get_heuristic(self) -> int:
-        return self._heuristic
+        return self.__heuristic
 
     def __lt__(self, other):
-        return self._cost + self._heuristic < other.get_cost() + other.get_heuristic()
+        return self.__cost + self.__heuristic < other.get_cost() + other.get_heuristic()
