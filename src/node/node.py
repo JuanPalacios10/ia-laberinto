@@ -1,7 +1,7 @@
 class Node:
-    def __init__(self, position: tuple[int, int], father=None):
+    def __init__(self, position: tuple[int, int], parent=None):
         self._position: tuple[int, int] = position
-        self._father = father
+        self._parent = parent
 
     def get_position(self) -> tuple[int, int]:
         return self._position
@@ -9,18 +9,15 @@ class Node:
     def set_position(self, position: tuple[int, int]):
         self._position = position
 
-    def get_father(self):
-        return self._father
-
-    def set_father(self, father):
-        self._father = father
+    def get_parent(self):
+        return self._parent
 
 
 class NodeH(Node):
     def __init__(
-        self, position: tuple[int, int], father=None, cost: int = 0, heuristic: int = 0
+        self, position: tuple[int, int], parent=None, cost: int = 0, heuristic: int = 0
     ):
-        super().__init__(position, father)
+        super().__init__(position, parent)
         self._cost = cost
         self._heuristic = heuristic
 
