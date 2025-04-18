@@ -1,5 +1,9 @@
+from __future__ import annotations
+from typing import Optional
+
+
 class Node:
-    def __init__(self, position: tuple[int, int], parent=None):
+    def __init__(self, position: tuple[int, int], parent: Optional[Node] = None):
         self.__position: tuple[int, int] = position
         self.__parent = parent
 
@@ -15,7 +19,11 @@ class Node:
 
 class NodeH(Node):
     def __init__(
-        self, position: tuple[int, int], parent=None, cost: int = 0, heuristic: int = 0
+        self,
+        position: tuple[int, int],
+        parent: Optional[NodeH] = None,
+        cost: int = 0,
+        heuristic: int = 0,
     ):
         super().__init__(position, parent)
         self.__cost = cost
@@ -27,5 +35,5 @@ class NodeH(Node):
     def get_heuristic(self) -> int:
         return self.__heuristic
 
-    def __lt__(self, other):
+    def __lt__(self, other: NodeH):
         return self.__cost + self.__heuristic < other.get_cost() + other.get_heuristic()
