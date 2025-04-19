@@ -12,6 +12,9 @@ class IMaze(ABC):
     def get_columns(self) -> int: ...
 
     @abstractmethod
+    def valid_free(self, column: int, row: int) -> bool: ...
+
+    @abstractmethod
     def valid_position(self, column: int, row: int) -> bool: ...
 
     @abstractmethod
@@ -85,15 +88,20 @@ class Maze(IMaze):
 
         return element in self.__map[row][column]
 
+    def valid_free(self, column: int, row: int) -> bool:
+        element: str = self.__map[row][column]
+
+        return element == self.OPTIONS["FREE"]
+
     def valid_position(self, column: int, row: int) -> bool:
         if not self.in_range(column, row):
             return False
 
         element: str = self.__map[row][column]
 
-        return (
-            len(element) < 4 and self.are_walls(element)
-        ) or element == self.OPTIONS["FREE"]
+        return (len(element) < 4 and self.are_walls(element)) or self.valid_free(
+            column, row
+        )
 
     def __remove_wall(self, element: str, column: int, row: int) -> None:
         if not self.has_element(element, column, row):
