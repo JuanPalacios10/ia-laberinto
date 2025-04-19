@@ -63,7 +63,7 @@ class Maze(IMaze):
         if not isinstance(walls, dict):
             raise ValueError("WALLS must be a dictionary")
 
-        return element in walls.values()
+        return all(c in walls.values() for c in element)
 
     def option_to_string(self, option: str) -> str:
         value = self.OPTIONS.get(option)
@@ -104,6 +104,7 @@ class Maze(IMaze):
 
         if len(new) == 0:
             new = self.option_to_string("FREE")
+
         self.__map[row][column] = new
 
     def remove(self, element: str, column: int, row: int) -> None:
@@ -116,13 +117,7 @@ class Maze(IMaze):
         self.remove_wall(element, column, row)
 
     def add_wall(self, element: str, column: int, row: int) -> None:
-        if not self.in_range(column, row):
-            raise ValueError("Position out of range")
-
-        if not self.are_walls(element):
-            return None
-
-        if not self.has_element(element, column, row):
+        if self.has_element(element, column, row):
             return None
 
         original: str = self.__map[row][column]
@@ -134,10 +129,8 @@ class Maze(IMaze):
         self.__map[row][column] = new
 
     def add(self, element: str, column: int, row: int) -> None:
-        if not self.in_range(column, row):
-            raise ValueError("Position out of range")
+        is_free = self.valid_position(column, row)
 
-        is_free = self.has_element(self.option_to_string("FREE"), column, row)
         if not self.are_walls(element) and is_free:
             self.__map[row][column] = element
             return None
