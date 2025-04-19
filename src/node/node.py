@@ -29,11 +29,8 @@ class NodeH(Node):
         self.__cost = cost
         self.__heuristic = heuristic
 
-    def get_cost(self) -> int:
-        return self.__cost
-
-    def get_heuristic(self) -> int:
-        return self.__heuristic
+    def get_total_cost(self) -> int:
+        return self.__cost + self.__heuristic
 
     def __lt__(self, other: NodeH):
-        return self.__cost + self.__heuristic < other.get_cost() + other.get_heuristic()
+        return self.get_total_cost() < other.get_total_cost()
