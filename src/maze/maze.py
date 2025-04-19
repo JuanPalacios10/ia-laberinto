@@ -15,16 +15,13 @@ class IMaze(ABC):
     def valid_free(self, column: int, row: int) -> bool: ...
 
     @abstractmethod
-    def valid_position(self, column: int, row: int) -> bool: ...
-
-    @abstractmethod
     def has_element(self, element: str, column: int, row: int) -> bool: ...
 
     @abstractmethod
-    def add(self, element: str, column: int, row: int) -> None: ...
+    def add(self, element: str, column: int, row: int) -> bool: ...
 
     @abstractmethod
-    def remove(self, element: str, column: int, row: int) -> None: ...
+    def remove(self, element: str, column: int, row: int) -> bool: ...
 
     @abstractmethod
     def in_range(self, column: int, row: int) -> bool: ...
@@ -92,23 +89,24 @@ class Maze(IMaze):
         return element in self.__map[row][column]
 
     def valid_free(self, column: int, row: int) -> bool:
-        element: str = self.__map[row][column]
-
-        return element == self.OPTIONS["FREE"]
-
-    def valid_position(self, column: int, row: int) -> bool:
         if not self.in_range(column, row):
             return False
 
         element: str = self.__map[row][column]
 
-        return (len(element) < 4 and self.are_walls(element)) or self.valid_free(
-            column, row
-        )
+        return element == self.OPTIONS["FREE"]
 
-    def __remove_wall(self, element: str, column: int, row: int) -> None:
+    def valid_wall(self, column: int, row: int) -> bool:
+        if not self.in_range(column, row):
+            return False
+
+        element: str = self.__map[row][column]
+
+        return len(element) < 4 and self.are_walls(element)
+
+    def __remove_wall(self, element: str, column: int, row: int) -> bool:
         if not self.has_element(element, column, row):
-            return None
+            return False
 
         original: str = self.__map[row][column]
         new: str = original.replace(element, "")
@@ -117,36 +115,36 @@ class Maze(IMaze):
             new = self.option_to_string("FREE")
 
         self.__map[row][column] = new
+        return True
 
-    def remove(self, element: str, column: int, row: int) -> None:
+    def remove(self, element: str, column: int, row: int) -> bool:
         if not self.in_range(column, row):
             raise ValueError("Position out of range")
 
         if not self.are_walls(element):
             self.__map[row][column] = self.option_to_string("FREE")
+            return True
 
-        self.__remove_wall(element, column, row)
+        return self.__remove_wall(element, column, row)
 
-    def __add_wall(self, element: str, column: int, row: int) -> None:
-        if self.has_element(element, column, row):
-            return None
+    def __add_wall(self, element: str, column: int, row: int) -> bool:
+        if not self.are_walls(element) or self.has_element(element, column, row):
+            return False
 
         original: str = self.__map[row][column]
         new: str = original + element
 
-        if len(new) > 4:
-            return None
-
         self.__map[row][column] = new
+        return True
 
-    def add(self, element: str, column: int, row: int) -> None:
-        is_free = self.valid_position(column, row)
+    def add(self, element: str, column: int, row: int) -> bool:
+        is_free = self.valid_free(column, row)
 
-        if not self.are_walls(element) and is_free:
+        if is_free:
             self.__map[row][column] = element
-            return None
+            return True
 
-        self.__add_wall(element, column, row)
+        return self.__add_wall(element, column, row)
 
     def get_free_positions(self) -> list[tuple[int, int]]:
         row_size: int = self.__rows
