@@ -30,6 +30,9 @@ class IMaze(ABC):
     def in_range(self, column: int, row: int) -> bool: ...
 
     @abstractmethod
+    def get_free_positions(self) -> list[tuple[int, int]]: ...
+
+    @abstractmethod
     def change_size(self, new_columns: int, new_rows: int) -> None: ...
 
 
@@ -145,6 +148,18 @@ class Maze(IMaze):
 
         self.__add_wall(element, column, row)
 
+    def get_free_positions(self) -> list[tuple[int, int]]:
+        row_size: int = self.__rows
+        column_size: int = self.__columns
+        free_positions: list[tuple[int, int]] = []
+
+        for row in range(row_size):
+            for column in range(column_size):
+                if self.valid_free(column, row):
+                    free_positions.append((column, row))
+
+        return free_positions
+
     def change_size(self, new_columns: int, new_rows: int) -> None:
         if new_columns < 0 or new_rows < 0:
             raise ValueError("Size must be positive")
@@ -155,12 +170,12 @@ class Maze(IMaze):
         new_map: list[list[str]] = [
             ["" for _ in range(new_columns)] for _ in range(new_rows)
         ]
-        map_size: int = len(self.__map)
-        column_size: int = len(self.__map[0])
+        row_size: int = self.__rows
+        column_size: int = self.__columns
 
         for row in range(new_rows):
             for column in range(new_columns):
-                if row < map_size and column < column_size:
+                if row < row_size and column < column_size:
                     new_map[row][column] = self.__map[row][column]
                 else:
                     new_map[row][column] = self.option_to_string("FREE")
