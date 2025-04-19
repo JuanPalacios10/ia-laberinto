@@ -95,7 +95,7 @@ class Maze(IMaze):
             len(element) < 4 and self.are_walls(element)
         ) or element == self.OPTIONS["FREE"]
 
-    def remove_wall(self, element: str, column: int, row: int) -> None:
+    def __remove_wall(self, element: str, column: int, row: int) -> None:
         if not self.has_element(element, column, row):
             return None
 
@@ -114,9 +114,9 @@ class Maze(IMaze):
         if not self.are_walls(element):
             self.__map[row][column] = self.option_to_string("FREE")
 
-        self.remove_wall(element, column, row)
+        self.__remove_wall(element, column, row)
 
-    def add_wall(self, element: str, column: int, row: int) -> None:
+    def __add_wall(self, element: str, column: int, row: int) -> None:
         if self.has_element(element, column, row):
             return None
 
@@ -135,7 +135,7 @@ class Maze(IMaze):
             self.__map[row][column] = element
             return None
 
-        self.add_wall(element, column, row)
+        self.__add_wall(element, column, row)
 
     def change_size(self, new_columns: int, new_rows: int) -> None:
         if new_columns < 0 or new_rows < 0:
