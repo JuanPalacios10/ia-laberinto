@@ -45,10 +45,7 @@ class Maze(IMaze):
         if not isinstance(walls, dict):
             raise ValueError("WALLS must be a dictionary")
 
-        if element not in walls.values():
-            return False
-
-        return True
+        return element in walls.values()
 
     def option_to_string(self, option: str) -> str:
         value = self.OPTIONS.get(option)
@@ -105,7 +102,7 @@ class Maze(IMaze):
             raise ValueError("Position out of range")
 
         if not self.are_walls(element):
-            raise ValueError("Element is not a wall")
+            return None
 
         if not self.has_element(element, column, row):
             return None
@@ -122,10 +119,8 @@ class Maze(IMaze):
         if not self.in_range(column, row):
             raise ValueError("Position out of range")
 
-        if not self.has_element(element, column, row):
-            return None
-
-        if not self.are_walls(element):
+        is_free = self.has_element(self.option_to_string("FREE"), column, row)
+        if not self.are_walls(element) and is_free:
             self.__map[row][column] = element
             return None
 
