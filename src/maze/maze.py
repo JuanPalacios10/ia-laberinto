@@ -3,6 +3,15 @@ from abc import ABC, abstractmethod
 
 class IMaze(ABC):
     @abstractmethod
+    def get_map(self) -> list[list[str]]: ...
+
+    @abstractmethod
+    def get_rows(self) -> int: ...
+
+    @abstractmethod
+    def get_columns(self) -> int: ...
+
+    @abstractmethod
     def valid_position(self, column: int, row: int) -> bool: ...
 
     @abstractmethod
@@ -38,6 +47,15 @@ class Maze(IMaze):
         self.__rows = rows
         self.__columns = columns
         self.__map = map
+
+    def get_map(self) -> list[list[str]]:
+        return self.__map
+
+    def get_rows(self) -> int:
+        return self.__rows
+
+    def get_columns(self) -> int:
+        return self.__columns
 
     def are_walls(self, element: str) -> bool:
         walls = self.OPTIONS.get("WALLS")
