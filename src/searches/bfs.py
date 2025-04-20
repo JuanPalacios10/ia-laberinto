@@ -23,9 +23,7 @@ class BreadthFirstSearch(ISearchStrategy):
             children = self.get_children(current_pos, maze)
 
             for child in children:
-                grandparent: Optional[Node] = current_node.get_parent()
-
-                if not grandparent or child != grandparent.get_position():
+                if Search.without_returning(current_node, child):
                     queue.append(Node(child, current_node))
 
         return None

@@ -29,6 +29,9 @@ class NodeH(Node):
         self.__cost = cost
         self.__heuristic = heuristic
 
+    def get_cost(self) -> int:
+        return self.__cost
+
     def get_total_cost(self) -> int:
         return self.__cost + self.__heuristic
 
