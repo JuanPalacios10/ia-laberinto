@@ -22,12 +22,8 @@ class DepthFirstSearch(ISearchStrategy):
             children = self.get_children(current_pos, maze)
 
             for child in reversed(children):  
-                # Evitar devolverse
-                if not Search.without_returning(current_node, child):
-                    continue
-                # Evitar ciclos
                 if self.__is_in_path(current_node, child):
-                    break
+                    continue
 
                 stack.append(Node(child, current_node))
                 
