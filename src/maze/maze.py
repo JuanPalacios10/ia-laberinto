@@ -116,20 +116,23 @@ class Maze(IMaze):
         delta_col, delta_row = DIRECTIONS[direction]
         to_column, to_row = from_column + delta_col, from_row + delta_row
 
-        if not self.in_range(to_column, to_row):
+        if not self.in_range(to_column, to_row) or self.has_element(
+            option_to_string("OBSTACLE"), to_column, to_row
+        ):
             return False
 
         if self.valid_free(to_column, to_row):
             return True
 
         element: str = self.__map[from_row][from_column]
+        next_element = self.__map[to_row][to_column]
+
         walls = self.OPTIONS.get("WALLS")
 
         if not isinstance(walls, dict):
             raise ValueError("WALLS must be a dictionary")
 
         wall_to_direction = walls.get(direction, "") in element
-        next_element = self.__map[to_row][to_column]
         opposite_direction = OPPOSITE_DIRECTIONS[direction]
         opposite_wall = walls.get(opposite_direction, "") in next_element
 
