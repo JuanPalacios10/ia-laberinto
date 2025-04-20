@@ -1,7 +1,7 @@
 from typing import Optional
 from maze.maze import IMaze
 from node.node import Node
-from search_strategy import ISearchStrategy, Search
+from .search_strategy import ISearchStrategy, Search
 
 
 class DepthFirstSearch(ISearchStrategy):
@@ -21,9 +21,12 @@ class DepthFirstSearch(ISearchStrategy):
 
             children = self.get_children(current_pos, maze)
 
-            for child in reversed(children):  
-                if self.__is_in_path(current_node, child):
+            for child in reversed(children):
+                if not Search.without_returning(current_node, child):
                     continue
+
+                if self.__is_in_path(current_node, child):
+                    return None
 
                 stack.append(Node(child, current_node))
                 
