@@ -21,7 +21,11 @@ class DepthFirstSearch(ISearchStrategy):
 
             children = self.get_children(current_pos, maze)
 
-            for child in reversed(children):
+            for child in reversed(children):  
+                # Evitar devolverse
+                if not Search.without_returning(current_node, child):
+                    continue
+                # Evitar ciclos
                 if self.__is_in_path(current_node, child):
                     break
 
@@ -37,7 +41,7 @@ class DepthFirstSearch(ISearchStrategy):
     def get_path(self, node: Optional[Node]) -> list[tuple[int, int]]:
         return Search.get_path(node)
     
-    def __is_in_path(node: Node, position: tuple[int, int]) -> bool:
+    def __is_in_path(self, node: Node, position: tuple[int, int]) -> bool:
         while node:
             if node.get_position() == position:
                 return True
