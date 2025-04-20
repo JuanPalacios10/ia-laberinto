@@ -22,6 +22,13 @@ class ISearchStrategy(ABC):
 
 class Search:
     @staticmethod
+    def without_returning(
+        current_node: Node, position: tuple[int, int]
+    ) -> Optional[bool]:
+        grandparent: Optional[Node] = current_node.get_parent()
+        return not grandparent or position != grandparent.get_position()
+
+    @staticmethod
     def get_children(position: tuple[int, int], maze: IMaze) -> list[tuple[int, int]]:
         children: list[tuple[int, int]] = []
         from_column, from_row = position
@@ -46,6 +53,6 @@ class Search:
             path.append(node.get_position())
             node = node.get_parent()
 
-        rute: list[tuple[int, int]] = path[::-1]
+        route: list[tuple[int, int]] = path[::-1]
 
-        return rute
+        return route
