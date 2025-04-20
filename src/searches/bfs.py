@@ -2,7 +2,7 @@ from collections import deque
 from typing import Deque, Optional
 from maze.maze import IMaze
 from node.node import Node
-from search_strategy import ISearchStrategy, Search
+from .search_strategy import ISearchStrategy, Search
 
 
 class BreadthFirstSearch(ISearchStrategy):
