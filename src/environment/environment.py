@@ -10,7 +10,7 @@ class Environment:
 
     def set_goal(self, column: int, row: int) -> None:
         if self.__maze.add(option_to_string("CHEESE"), column, row):
-            self.__goal_position = (column, row)
+            self.__goal_position = (row, column)
         else:
             return None
 
@@ -23,7 +23,8 @@ class Environment:
         new_col, new_row = random.choice(free_positions)
 
         if self.__goal_position:
-            self.__maze.remove("G", *self.__goal_position)
+            row, column = self.__goal_position
+            self.__maze.remove("G", column=column, row=row)
 
         self.set_goal(new_col, new_row)
 

@@ -36,7 +36,7 @@ class IMaze(ABC):
     def in_range(self, column: int, row: int) -> bool: ...
 
     @abstractmethod
-    def get_free_positions(self, agent: bool) -> list[tuple[int, int]]: ...
+    def get_free_positions(self, agent: bool = False) -> list[tuple[int, int]]: ...
 
     @abstractmethod
     def change_size(self, new_columns: int, new_rows: int) -> None: ...
@@ -113,8 +113,11 @@ class Maze(IMaze):
         return self.__map[row][column]
 
     def can_move(self, from_column: int, from_row: int, direction: str) -> bool:
-        delta_col, delta_row = DIRECTIONS[direction]
-        to_column, to_row = from_column + delta_col, from_row + delta_row
+        delta_row, delta_column = DIRECTIONS[direction]
+        to_row, to_column = (
+            from_row + delta_row,
+            from_column + delta_column,
+        )
 
         if not self.in_range(to_column, to_row) or self.has_element(
             option_to_string("OBSTACLE"), to_column, to_row

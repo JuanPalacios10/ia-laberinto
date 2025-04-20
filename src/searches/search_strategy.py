@@ -31,7 +31,7 @@ class Search:
     @staticmethod
     def get_children(position: tuple[int, int], maze: IMaze) -> list[tuple[int, int]]:
         children: list[tuple[int, int]] = []
-        from_column, from_row = position
+        from_row, from_column = position
 
         for direction, movement in DIRECTIONS.items():
             if not maze.can_move(
@@ -39,9 +39,10 @@ class Search:
             ):
                 continue
 
-            to_column = from_column + movement[0]
-            to_row = from_row + movement[1]
-            children.append((to_column, to_row))
+            row, column = movement
+            to_row = from_row + row
+            to_column = from_column + column
+            children.append((to_row, to_column))
 
         return children
 
