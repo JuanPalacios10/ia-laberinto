@@ -203,7 +203,7 @@ class Maze(IMaze):
         row_size: int = self.__rows
         column_size: int = self.__columns
 
-        if new_columns == column_size and new_rows == row:
+        if new_columns == column_size and new_rows == row_size:
             return None
 
         new_map: list[list[str]] = [
