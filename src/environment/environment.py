@@ -1,4 +1,5 @@
 import random
+from constants.maze_options import option_to_string
 from maze.maze import IMaze
 
 
@@ -8,7 +9,7 @@ class Environment:
         self.__goal_position = goal_position
 
     def set_goal(self, column: int, row: int) -> None:
-        if self.__maze.add("G", column, row):
+        if self.__maze.add(option_to_string("CHEESE"), column, row):
             self.__goal_position = (column, row)
         else:
             return None
