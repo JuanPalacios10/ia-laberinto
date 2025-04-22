@@ -15,7 +15,7 @@ class IMaze(ABC):
     def get_columns(self) -> int: ...
 
     @abstractmethod
-    def valid_free(self, column: int, row: int) -> bool: ...
+    def valid_free(self, column: int, row: int, valid_element: str) -> bool: ...
 
     @abstractmethod
     def can_move(self, from_column: int, from_row: int, direction: str) -> bool: ...
@@ -36,7 +36,10 @@ class IMaze(ABC):
     def in_range(self, column: int, row: int) -> bool: ...
 
     @abstractmethod
-    def get_free_positions(self, agent: bool = False) -> list[tuple[int, int]]: ...
+    def get_free_positions(self, valid_element: str) -> list[tuple[int, int]]: ...
+
+    @abstractmethod
+    def get_all_positions(self) -> list[tuple[int, int]]: ...
 
     @abstractmethod
     def change_size(self, new_columns: int, new_rows: int) -> None: ...
@@ -59,6 +62,17 @@ class Maze(IMaze):
     def get_columns(self) -> int:
         return self.__columns
 
+    def __is_fix(self, value: str) -> bool:
+        return not self.__is_wall(value) and value in MAZE_OPTIONS.values()
+
+    def __is_wall(self, value: str) -> bool:
+        walls = MAZE_OPTIONS.get("WALLS")
+
+        if not isinstance(walls, dict):
+            raise ValueError("Option must be a dict")
+
+        return value in walls.values()
+
     def __there_are_walls(self, element: str) -> bool:
         walls = self.OPTIONS.get("WALLS")
 
@@ -76,34 +90,44 @@ class Maze(IMaze):
 
         return element in self.__map[row][column]
 
-    def valid_free(self, column: int, row: int) -> bool:
+    def valid_free(self, column: int, row: int, valid_element: str) -> bool:
         if not self.in_range(column, row):
             return False
 
         element: str = self.__map[row][column]
 
-        return element == self.OPTIONS["FREE"]
+        if element == self.OPTIONS["FREE"]:
+            return True
 
-    def __valid_free_wall(self, column: int, row: int) -> bool:
-        if not self.in_range(column, row):
-            return False
+        if self.__is_fix(valid_element):
+            return self.__valid_fix(element)
 
+        if self.__is_wall(valid_element):
+            return self.__valid_wall(element)
+
+        return False
+
+    def __valid_fix(self, element: str) -> bool:
+        return not self.__is_fix(element) and self.__valid_free_wall(element)
+
+    def __valid_free_wall(self, element: str) -> bool:
         walls = self.OPTIONS.get("WALLS")
 
         if not isinstance(walls, dict):
             raise ValueError("WALLS must be a dictionary")
 
-        element: str = self.__map[row][column]
         are_walls = all(c in walls.values() for c in element)
 
         return len(element) < 4 and are_walls
 
-    def __valid_wall(self, column: int, row: int) -> bool:
-        if not self.in_range(column, row):
-            return False
+    def __valid_wall(self, element: str) -> bool:
+        return (
+            self.__is_fix(element)
+            or self.__valid_fix_wall(element)
+            or self.__valid_free_wall(element)
+        )
 
-        element: str = self.__map[row][column]
-
+    def __valid_fix_wall(self, element: str) -> bool:
         return len(element) < 4 and self.__there_are_walls(element)
 
     def get_element(self, column: int, row: int) -> Optional[str]:
@@ -124,7 +148,7 @@ class Maze(IMaze):
         ):
             return False
 
-        if self.valid_free(to_column, to_row):
+        if self.valid_free(to_column, to_row, valid_element=option_to_string("FREE")):
             return True
 
         element: str = self.__map[from_row][from_column]
@@ -142,9 +166,6 @@ class Maze(IMaze):
         return not wall_to_direction and not opposite_wall
 
     def __remove_wall(self, element: str, column: int, row: int) -> bool:
-        if not self.has_element(element, column, row):
-            return False
-
         original: str = self.__map[row][column]
         new: str = original.replace(element, "")
 
@@ -158,14 +179,17 @@ class Maze(IMaze):
         if not self.in_range(column, row):
             raise ValueError("Position out of range")
 
-        if not self.__there_are_walls(element):
+        if not self.has_element(element, column, row):
+            return False
+
+        if self.__is_fix(element):
             self.__map[row][column] = option_to_string("FREE")
             return True
 
         return self.__remove_wall(element, column, row)
 
     def __add_wall(self, element: str, column: int, row: int) -> bool:
-        if self.has_element(element, column, row) or not self.__valid_wall(column, row):
+        if not self.valid_free(column, row, element):
             return False
 
         original: str = self.__map[row][column]
@@ -175,32 +199,38 @@ class Maze(IMaze):
         return True
 
     def add(self, element: str, column: int, row: int) -> bool:
-        is_free = self.valid_free(column, row)
+        if self.has_element(element, column, row):
+            return False
 
-        if is_free:
+        if self.valid_free(column, row, valid_element=option_to_string("FREE")):
             self.__map[row][column] = element
             return True
 
         return self.__add_wall(element, column, row)
 
-    def get_free_positions(self, agent: bool = False) -> list[tuple[int, int]]:
+    def get_free_positions(self, valid_element: str) -> list[tuple[int, int]]:
         row_size: int = self.__rows
         column_size: int = self.__columns
         free_positions: list[tuple[int, int]] = []
 
         for row in range(row_size):
             for column in range(column_size):
-                if (
-                    self.valid_free(column, row)
-                    or self.__valid_free_wall(column, row)
-                    or self.__get_free_positions_agent(agent, column, row)
-                ):
-                    free_positions.append((column, row))
+                if self.valid_free(column, row, valid_element):
+                    free_positions.append((row, column))
 
         return free_positions
 
     def __get_free_positions_agent(self, agent: bool, column: int, row: int) -> bool:
         return agent and self.has_element(option_to_string("CAT"), column, row)
+
+    def get_all_positions(self) -> list[tuple[int, int]]:
+        positions: list[tuple[int, int]] = []
+
+        for row in range(self.__rows):
+            for column in range(self.__columns):
+                positions.append((row, column))
+
+        return positions
 
     def change_size(self, new_columns: int, new_rows: int) -> None:
         if new_columns < 0 or new_rows < 0:
