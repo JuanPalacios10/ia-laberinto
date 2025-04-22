@@ -148,20 +148,20 @@ class Maze(IMaze):
         ):
             return False
 
-        if self.valid_free(to_column, to_row, valid_element=option_to_string("FREE")):
-            return True
-
         element: str = self.__map[from_row][from_column]
-        next_element = self.__map[to_row][to_column]
+        next_element: str = self.__map[to_row][to_column]
+
+        if next_element == self.OPTIONS["FREE"]:
+            return True
 
         walls = self.OPTIONS.get("WALLS")
 
         if not isinstance(walls, dict):
             raise ValueError("WALLS must be a dictionary")
 
-        wall_to_direction = walls.get(direction, "") in element
-        opposite_direction = OPPOSITE_DIRECTIONS[direction]
-        opposite_wall = walls.get(opposite_direction, "") in next_element
+        wall_to_direction: bool = walls.get(direction, "") in element
+        opposite_direction: str = OPPOSITE_DIRECTIONS[direction]
+        opposite_wall: bool = walls.get(opposite_direction, "") in next_element
 
         return not wall_to_direction and not opposite_wall
 
