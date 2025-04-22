@@ -8,7 +8,6 @@ class DepthFirstSearch(ISearchStrategy):
     def search(
         self, start: tuple[int, int], goal: tuple[int, int], maze: IMaze
     ) -> Optional[list[tuple[int, int]]]:
-        
         stack: list[Node] = []
         stack.append(Node(start))
 
@@ -29,7 +28,7 @@ class DepthFirstSearch(ISearchStrategy):
                     return None
 
                 stack.append(Node(child, current_node))
-                
+
         return None
 
     def get_children(
@@ -39,8 +38,8 @@ class DepthFirstSearch(ISearchStrategy):
 
     def get_path(self, node: Optional[Node]) -> list[tuple[int, int]]:
         return Search.get_path(node)
-    
-    def __is_in_path(self, node: Node, position: tuple[int, int]) -> bool:
+
+    def __is_in_path(self, node: Optional[Node], position: tuple[int, int]) -> bool:
         while node:
             if node.get_position() == position:
                 return True
