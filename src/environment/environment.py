@@ -17,8 +17,11 @@ class Environment:
             return None
 
     def move_goal(self) -> None:
-        free_positions = self.__maze.get_free_positions(option_to_string("CHEESE"))
-
+        free_positions = [
+            pos
+            for pos in self.__maze.get_free_positions(option_to_string("CHEESE"))
+            if pos != self.__agent.get_position()
+        ]
         if not free_positions:
             return None
 
@@ -37,12 +40,9 @@ class Environment:
         return self.__maze
 
     def update(self) -> bool:
-        moved = self.__agent.move_towards_goal(self.__goal_position, self.__maze)
+        moved: bool = self.__agent.move_towards_goal(self.__goal_position, self.__maze)
 
-        if moved and self.__agent.get_position() == self.__goal_position:
-            return False
-
-        if random.random() < 1:
+        if moved and random.random() < 1:
             self.modify_environment()
             return True
 
@@ -56,7 +56,7 @@ class Environment:
             position for position in positions if position != agent_position
         ]
 
-        positions_to_modify = random.sample(
+        positions_to_modify: list[tuple[int, int]] = random.sample(
             candidate_positions, min(max_modifications, len(candidate_positions))
         )
 
