@@ -1,3 +1,6 @@
+from typing import Optional
+
+
 MAZE_OPTIONS: dict[str, dict[str, str] | str] = {
     "WALLS": {
         "UP": "U",
@@ -10,6 +13,32 @@ MAZE_OPTIONS: dict[str, dict[str, str] | str] = {
     "CAT": "C",
     "CHEESE": "G",
 }
+
+
+def string_to_option(element: str) -> Optional[str]:
+    wall = string_to_option_walls(element)
+
+    if wall is not None:
+        return wall
+
+    for key, value in MAZE_OPTIONS.items():
+        if value == element:
+            return key
+
+    return None
+
+
+def string_to_option_walls(element: str) -> Optional[str]:
+    walls = MAZE_OPTIONS.get("WALLS")
+
+    if not isinstance(walls, dict):
+        raise ValueError("WALLS must be a dictionary")
+
+    for key, value in walls.items():
+        if value == element:
+            return key
+
+    return None
 
 
 def option_to_string(option: str) -> str:

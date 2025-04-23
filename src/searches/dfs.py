@@ -1,7 +1,7 @@
 from typing import Optional
 from maze.maze import IMaze
 from node.node import Node
-from .search_strategy import ISearchStrategy, Search
+from searches.search_strategy import ISearchStrategy, Search
 
 
 class DepthFirstSearch(ISearchStrategy):
