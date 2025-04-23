@@ -23,7 +23,7 @@ class Controller:
         agent_position: tuple[int, int] = self.__agent.get_position()
         goal_position: tuple[int, int] = self.__environment.get_goal()
 
-        if not updated and agent_position == goal_position:
+        if agent_position == goal_position:
             self.__running = False
 
     def reset(self) -> None:
@@ -36,7 +36,6 @@ class Controller:
             "agent_position": self.__agent.get_position(),
             "goal_position": self.__environment.get_goal(),
             "step": self.__step_count,
-            "running": self.__running,
         }
 
     def set_search_strategy(self, strategy: ISearchStrategy) -> None:
@@ -44,3 +43,6 @@ class Controller:
 
     def is_running(self) -> bool:
         return self.__running
+
+    def set_running(self,  running: bool) -> None:
+        self.__running = running
