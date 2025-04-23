@@ -133,4 +133,3 @@ class GraficarLaberinto:
 
         pygame.quit()
         sys.exit()
-

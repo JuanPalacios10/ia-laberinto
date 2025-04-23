@@ -30,6 +30,7 @@ def main():
 
     graficador = GraficarLaberinto(map, start_position)
     graficador.run(controller)
+    
 
 if __name__ == "__main__":
     main()

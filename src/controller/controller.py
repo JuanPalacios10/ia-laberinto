@@ -46,3 +46,4 @@ class Controller:
 
     def set_running(self,  running: bool) -> None:
         self.__running = running
+        
