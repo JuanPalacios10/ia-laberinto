@@ -24,7 +24,9 @@ def test_depth_first_search_basic():
     # Verificar que se haya encontrado un camino
     assert path is not None
     assert len(path) > 0
+    assert path[0] == start
     assert path[-1] == goal
+    assert path == [(0, 3), (1, 3), (2, 3), (3, 3), (3, 2), (3, 1)]
 
 
 def test_depth_first_not_solution():
@@ -51,9 +53,9 @@ def test_depth_first_not_solution():
 
 def test_depth_first_cycle():
     maze_map = [
-        [" ", " ", " ", "X"],
-        ["L", "U", "U", "X"],
-        ["U", " ", "U", "X"],
+        [" ", " ", "X", "X"],
+        ["L", "R", "U", "X"],
+        ["U", "U", "U", "X"],
         ["C", "L", " ", "G"],
     ]
     maze = Maze(4, 4, maze_map)

@@ -150,10 +150,6 @@ class Maze(IMaze):
 
         element: str = self.__map[from_row][from_column]
         next_element: str = self.__map[to_row][to_column]
-
-        if next_element == self.OPTIONS["FREE"]:
-            return True
-
         walls = self.OPTIONS.get("WALLS")
 
         if not isinstance(walls, dict):

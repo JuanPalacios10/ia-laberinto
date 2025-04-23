@@ -40,8 +40,8 @@ class Search:
                 continue
 
             row, column = movement
-            to_row = from_row + row
-            to_column = from_column + column
+            to_row: int = from_row + row
+            to_column: int = from_column + column
             children.append((to_row, to_column))
 
         return children

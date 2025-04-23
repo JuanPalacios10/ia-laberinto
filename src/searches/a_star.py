@@ -28,8 +28,9 @@ class Astar(ISearchStrategy):
 
             for child in children:
                 cost: int = 1
+                row, column = child
 
-                if maze.has_element(option_to_string("CAT"), *child):
+                if maze.has_element(option_to_string("CAT"), column=column, row=row):
                     cost = 5
 
                 if not Search.without_returning(current_node, child):
