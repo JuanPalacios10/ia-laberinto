@@ -1,5 +1,6 @@
 import pygame
 import sys
+
 import tkinter as tk
 from tkinter import font
 
@@ -35,10 +36,10 @@ class EditorLaberinto:
         self.queso_pos = None
 
         # Ratón y queso
-        self.raton_img = pygame.image.load("src/ui/mouse.png")
-        self.queso_img = pygame.image.load("src/ui/cheese.png")
-        self.gato_img = pygame.image.load("src/ui/cat.png")
-        
+        self.raton_img = pygame.image.load("assets/mouse.png")
+        self.queso_img = pygame.image.load("assets/cheese.png")
+        self.gato_img = pygame.image.load("assets/cat.png")
+
         self.raton_img = pygame.transform.scale(self.raton_img, (self.CELL_SIZE, self.CELL_SIZE))
         self.queso_img = pygame.transform.scale(self.queso_img, (self.CELL_SIZE, self.CELL_SIZE))
         self.gato_img = pygame.transform.scale(self.gato_img, (self.CELL_SIZE, self.CELL_SIZE))
@@ -100,7 +101,7 @@ class EditorLaberinto:
                 else:
                     pygame.draw.rect(self.screen, self.WHITE, rect)
 
-                pygame.draw.rect(self.screen, self.GRAY, rect, 1)  
+                pygame.draw.rect(self.screen, self.GRAY, rect, 1)
 
                 # Dibujar elementos de la celda
                 for element in cell:
@@ -172,7 +173,7 @@ class EditorLaberinto:
             if (row, col) == self.raton_pos or (row, col) == self.queso_pos or "C" in current:
                 print("No se puede colocar 'X' sobre Ratón, Queso o Gato.")
                 return
-            self.editor_grid[row][col] = "X"
+            self.editor_grid[row][col] += "X"
 
         elif self.current_tool == "C": # Gato
             if "X" in current or "G" in current or (row, col) == self.raton_pos:
@@ -192,29 +193,30 @@ class EditorLaberinto:
                 self.editor_grid[row][col] = self.current_tool if current == " " else current + self.current_tool
 
     def get_final_map_data(self):
-        """Obtiene los datos finales del mapa para exportar"""
         if self.raton_pos is None:
             print("ERROR: El Ratón (posición inicial) no ha sido colocado en el mapa.")
             return None, None
         if self.queso_pos is None:
             print("ERROR: El Queso (objetivo) no ha sido colocado en el mapa.")
             return None, None
-
-        # Retorna una copia profunda para evitar modificaciones externas accidentales
+        
         final_grid = [row[:] for row in self.editor_grid]
-        final_raton_pos = self.raton_pos
-
+        
         print("\n--- Mapa Final Generado ---")
         print("Grid:")
-        for r in final_grid:
-            print(r)
-        print("Posición Inicial Ratón:", final_raton_pos)
+        # Imprimimos cada fila con una coma al final
+        for i, r in enumerate(final_grid):
+            row_str = str(r)
+            if i < len(final_grid) - 1:  # Todas las filas excepto la última llevan coma
+                row_str += ','
+            print(row_str)
+        print("Posición Inicial Queso:", self.queso_pos)
+        print("Posición Inicial Raton", self.raton_pos)
         print("-------------------------\n")
 
-        return final_grid, final_raton_pos
+        return final_grid, self.queso_pos, self.raton_pos
 
     def run(self):
-        """Bucle principal del editor"""
         clock = pygame.time.Clock()
         running = True
 
@@ -264,12 +266,14 @@ class EditorLaberinto:
                         self.current_tool = "empty"
 
                     elif event.key == pygame.K_s:
-                        final_map, start_pos = self.get_final_map_data()
-                        if final_map and start_pos:
+                        final_map, start_pos, agent_position = self.get_final_map_data()
+                        if final_map and start_pos and agent_position:
                             print("¡Mapa exportado a consola!")
+                            return final_map, start_pos, agent_position
                         else:
                             print("Exportación fallida: Revisa que el ratón y el queso estén colocados.")
+                            
 
-if __name__ == "__main__":
-    editor = EditorLaberinto()
-    editor.run()
+# if __name__ == "__main__":
+#     editor = EditorLaberinto()
+#     editor.run()
