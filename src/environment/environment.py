@@ -42,7 +42,9 @@ class Environment:
     def update(self) -> bool:
         moved: bool = self.__agent.move_towards_goal(self.__goal_position, self.__maze)
 
-        if moved and random.random() < 1:
+        probability: float = 0.33
+
+        if moved and random.random() < probability:
             self.modify_environment()
             return True
 
