@@ -28,8 +28,6 @@ def main():
         start_position,
     ) = exported_map
 
-    print(map, goal_position, start_position)
-
     row = len(map)
     col = len(map[0])
     maze = Maze(col, row, map)

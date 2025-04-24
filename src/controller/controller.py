@@ -21,13 +21,12 @@ class Controller:
 
         self.__environment.update()
         self.set_search_strategy()
-        self.__step_count += 1
 
         agent_position: tuple[int, int] = self.__agent.get_position()
         goal_position: tuple[int, int] = self.__environment.get_goal()
 
-        if agent_position == goal_position:
-            self.__running = False
+        if agent_position != goal_position:
+            self.__step_count += 1
 
     def reset(self) -> None:
         self.__step_count = 0

@@ -1,7 +1,7 @@
 import pygame
 import sys
 from controller.controller import Controller
-from ui.config_ui import Colors, Images, Tools, Window
+from ui.config_ui import Colors, Images, Tools
 from constants.maze_options import option_to_string, string_to_option
 from ui.elements import ElementFactory
 
@@ -13,7 +13,7 @@ class GraphMaze:
         self.COLS = len(grid[0]) if self.ROWS > 0 else 0
         self.WIDTH, self.HEIGHT = 600, 600
 
-        self.UI_HEIGHT = 3 * 20 + 10  # 3 líneas de 20px + algo de margen
+        self.UI_HEIGHT = 4 * 20 + 10  # 4 líneas de 20px + algo de margen
         self.screen = pygame.display.set_mode(
             (self.WIDTH, self.HEIGHT + self.UI_HEIGHT)
         )
@@ -30,7 +30,6 @@ class GraphMaze:
         # Mapa y posición del ratón
         self.grid = grid
         self.raton_pos = raton_pos
-        self.current_pos = raton_pos  # Posición actual del ratón (puede moverse)
 
         Images.set_scale(self.CELL_SIZE)
 
@@ -118,6 +117,11 @@ class GraphMaze:
         )
         self.screen.blit(label3, (x, y + 2 * line_spacing))
 
+        # Línea 3
+        if self.raton_pos == controller.get_state()["goal_position"]:
+            label3 = self.font.render("Ahora puedes descansar!!!", True, (0, 0, 0))
+            self.screen.blit(label3, (x, y + 3 * line_spacing))
+
     def run(self, controller: Controller):
         clock = pygame.time.Clock()
 
@@ -153,4 +157,3 @@ class GraphMaze:
         self.draw_grid()
         self.draw_ui(controller)
         pygame.display.flip()
-

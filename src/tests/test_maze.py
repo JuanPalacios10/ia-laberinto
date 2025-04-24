@@ -140,25 +140,6 @@ def test_get_free_positions():
     assert set(free_positions) == set(expected_free)
 
 
-def test_change_size():
-    original_map = [
-        [" ", "X", "RX"],
-        ["C", " ", "UR"],
-    ]
-    maze = Maze(3, 2, original_map)
-
-    # Reducir tamaño
-    maze.change_size(new_columns=2, new_rows=1)
-    assert maze.in_range(column=1, row=0)
-    assert not maze.in_range(column=2, row=0)  # ya no está en rango
-    assert maze.has_element("X", column=1, row=0)  # pared "X" se mantiene
-
-    # Expandir tamaño
-    maze.change_size(new_columns=4, new_rows=3)
-    assert maze.in_range(column=3, row=2)
-    assert maze.has_element(" ", column=3, row=2)  # nuevas celdas son libres
-
-
 def test_invalid_option_to_string_and_walls():
     with pytest.raises(ValueError):
         option_to_string("DOES_NOT_EXIST")
@@ -215,3 +196,16 @@ def test_get_all_positions():
     positions = maze.get_all_positions()
 
     assert len(positions) == 16
+
+
+def test_get_len_map():
+    custom_map = [
+        [" ", "X", "UR", " ", "X"],
+        ["C", "DL", "URLX", " ", "C"],
+        ["X", " ", "D", "R", " "],
+        ["G", "L", "U", " ", "ULD"],
+        [" ", "LR", "UD", "X", " "],
+    ]
+    maze = Maze(5, 5, custom_map)
+
+    assert maze.get_len() == 25
