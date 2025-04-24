@@ -382,14 +382,14 @@ class ConfigMaze:
 
         tool_keys = {
             pygame.K_1: Tools.MOUSE.value,
-            pygame.K_2: "queso",
-            pygame.K_3: "X",
-            pygame.K_4: "C",
-            pygame.K_0: "empty",
-            ord("r"): "R",
-            ord("d"): "D",
-            ord("l"): "L",
-            ord("u"): "U",
+            pygame.K_2: Tools.CHEESE.value,
+            pygame.K_3: Tools.OBSTACLE.value,
+            pygame.K_4: Tools.CAT.value,
+            pygame.K_0: Tools.FREE.value,
+            ord("r"): Tools.RIGHT.value,
+            ord("d"): Tools.DOWN.value,
+            ord("l"): Tools.LEFT.value,
+            ord("u"): Tools.UP.value,
         }
 
         if key in tool_keys:
