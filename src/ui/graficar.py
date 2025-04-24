@@ -69,7 +69,7 @@ class GraphMaze:
         if self.raton_pos:  # Dibujar el ratón al final para que esté encima de todo
             row, col = self.raton_pos
 
-            if not 0 <= row < self.ROWS or not 0 <= col < self.ROWS:
+            if not 0 <= row < self.ROWS or not 0 <= col < self.COLS:
                 return
 
             rect = pygame.Rect(
