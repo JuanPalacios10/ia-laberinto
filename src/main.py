@@ -17,14 +17,16 @@ def main():
     editor = ConfigMaze(window)
     editor.run()
 
-    if editor.export_map() is None:
+    exported_map = editor.export_map()
+
+    if exported_map is None:
         return None
 
     (
         map,
         goal_position,
         start_position,
-    ) = editor.export_map()
+    ) = exported_map
 
     print(map, goal_position, start_position)
 
