@@ -22,6 +22,7 @@ class Environment:
             for pos in self.__maze.get_free_positions(option_to_string("CHEESE"))
             if pos != self.__agent.get_position()
         ]
+
         if not free_positions:
             return None
 
@@ -43,8 +44,9 @@ class Environment:
         moved: bool = self.__agent.move_towards_goal(self.__goal_position, self.__maze)
 
         probability: float = 0.33
+        modify: bool = moved or self.__agent.get_no_solution()
 
-        if moved and random.random() < probability:
+        if modify and random.random() < probability:
             self.modify_environment()
             return True
 

@@ -12,12 +12,15 @@ class Controller:
 
         self.__step_count = 0
         self.__running = True
+        self.__searches = []
+        self.__current_index_search = 0
 
     def update(self) -> None:
         if not self.__running:
             return
 
-        updated: bool = self.__environment.update()
+        self.__environment.update()
+        self.set_search_strategy()
         self.__step_count += 1
 
         agent_position: tuple[int, int] = self.__agent.get_position()
@@ -38,12 +41,24 @@ class Controller:
             "step": self.__step_count,
         }
 
-    def set_search_strategy(self, strategy: ISearchStrategy) -> None:
-        self.__agent.set_strategy(strategy)
+    def set_searches(self, searches: list[ISearchStrategy]) -> None:
+        self.__searches = searches
+
+    def set_search_strategy(self) -> None:
+        if not self.__agent.get_no_solution():
+            return None
+
+        self.__current_index_search += 1
+
+        if self.__current_index_search >= len(self.__searches):
+            self.__current_index_search = 0
+
+        new_strategy: ISearchStrategy = self.__searches[self.__current_index_search]
+        print(new_strategy)
+        self.__agent.set_strategy(new_strategy)
 
     def is_running(self) -> bool:
         return self.__running
 
-    def set_running(self,  running: bool) -> None:
+    def set_running(self, running: bool) -> None:
         self.__running = running
-        

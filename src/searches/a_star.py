@@ -15,9 +15,12 @@ class Astar(ISearchStrategy):
         self, start: tuple[int, int], goal: tuple[int, int], maze: IMaze
     ) -> Optional[list[tuple[int, int]]]:
         priority_queue: list[NodeH] = []
+        limit_iterations: int = maze.get_len() * 100
+        iterations: int = 0
         heapq.heappush(priority_queue, NodeH(start, None, 0, manhattan(start, goal)))
 
-        while priority_queue:
+        while priority_queue and iterations <= limit_iterations:
+            iterations += 1
             current_node = heapq.heappop(priority_queue)
             current_pos = current_node.get_position()
 

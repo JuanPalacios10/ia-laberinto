@@ -42,7 +42,7 @@ class IMaze(ABC):
     def get_all_positions(self) -> list[tuple[int, int]]: ...
 
     @abstractmethod
-    def change_size(self, new_columns: int, new_rows: int) -> None: ...
+    def get_len(self) -> int: ...
 
 
 class Maze(IMaze):
@@ -228,27 +228,5 @@ class Maze(IMaze):
 
         return positions
 
-    def change_size(self, new_columns: int, new_rows: int) -> None:
-        if new_columns < 0 or new_rows < 0:
-            raise ValueError("Size must be positive")
-
-        row_size: int = self.__rows
-        column_size: int = self.__columns
-
-        if new_columns == column_size and new_rows == row_size:
-            return None
-
-        new_map: list[list[str]] = [
-            ["" for _ in range(new_columns)] for _ in range(new_rows)
-        ]
-
-        for row in range(new_rows):
-            for column in range(new_columns):
-                if row < row_size and column < column_size:
-                    new_map[row][column] = self.__map[row][column]
-                else:
-                    new_map[row][column] = option_to_string("FREE")
-
-        self.__rows = new_rows
-        self.__columns = new_columns
-        self.__map = new_map
+    def get_len(self) -> int:
+        return self.__rows * self.__columns

@@ -133,45 +133,6 @@ class ConfigMaze:
                 pygame.draw.rect(self.__screen, Colors.division, rect, 1)
                 self.__draw_element(cell, rect)
 
-                # Dibujar elementos de la celda
-                # for element in cell:
-                #     if element == "C":
-                #         self.screen.blit(self.gato_img, rect.topleft)
-                #     elif element == "G":
-                #         self.screen.blit(self.queso_img, rect.topleft)
-                #     elif element == "R":
-                #         pygame.draw.line(
-                #             self.screen,
-                #             self.__colors.wall,
-                #             rect.topright,
-                #             rect.bottomright,
-                #             8,
-                #         )
-                #     elif element == "L":
-                #         pygame.draw.line(
-                #             self.screen,
-                #             self.__colors.wall,
-                #             rect.topleft,
-                #             rect.bottomleft,
-                #             4,
-                #         )
-                #     elif element == "U":
-                #         pygame.draw.line(
-                #             self.screen,
-                #             self.__colors.wall,
-                #             rect.topleft,
-                #             rect.topright,
-                #             4,
-                #         )
-                #     elif element == "D":
-                #         pygame.draw.line(
-                #             self.screen,
-                #             self.__colors.wall,
-                #             rect.bottomleft,
-                #             rect.bottomright,
-                #             8,
-                #         )
-
         if self.raton_pos:  # Dibujar el ratón al final para que esté encima de todo
             row, col = self.raton_pos
 
@@ -394,127 +355,23 @@ class ConfigMaze:
         if action is not None:
             action()
 
-        # if self.current_tool == Tools.MOUSE.value:
-        #     # if "X" in current or "C" in current:
-        #     #     print("No se puede colocar el ratón sobre 'X' o 'C'.")
-        #     #     return
-        #     message = self.__set_in_fix(current, [Tools.OBSTACLE, Tools.CAT])
-        #
-        #     if message is not None:
-        #         print(message)
-        #         return
-        #
-        #     self.raton_pos = (row, col)
-        #
-        # ElementFactory.get_element(Tools.MOUSE).set_cell(
-        #     row=row,
-        #     col=col,
-        #     target=current,
-        #     target_count=current_element_count,
-        #     valid_elements=[Tools.OBSTACLE, Tools.CAT],
-        #     set_element=self.set_mouse_fix,
-        # )
-
-        # if self.current_tool == "queso":
-        #     if "X" in current or "C" in current:
-        #         print("No se puede colocar el queso sobre 'X', 'C'.")
-        #         return
-        #     if "G" not in current and current_element_count >= 4:
-        #         print(
-        #             f"Límite de 4 elementos alcanzado en [{row},{col}]. No se puede añadir Queso ('G')."
-        #         )
-        #         return
-        #     if self.queso_pos:
-        #         q_row, q_col = self.queso_pos
-        #         if 0 <= q_row < self.__window.rows and 0 <= q_col < self.__window.cols:
-        #             old_cell_content = self.editor_grid[q_row][q_col].replace("G", "")
-        #             self.editor_grid[q_row][q_col] = (
-        #                 old_cell_content if old_cell_content.strip() else " "
-        #             )
-        #     if "G" not in current:
-        #         self.editor_grid[row][col] = "G" if current == " " else current + "G"
-        #     self.queso_pos = (row, col)
-
-        # if self.current_tool == "empty":
-        #     if (row, col) == self.raton_pos:
-        #         self.raton_pos = None
-        #     if (row, col) == self.queso_pos:
-        #         self.queso_pos = None
-        #     self.editor_grid[row][col] = " "
-
-        # elif self.current_tool == "X":
-        #     if (
-        #         (row, col) == self.raton_pos
-        #         or (row, col) == self.queso_pos
-        #         or "C" in current
-        #     ):
-        #         print("No se puede colocar 'X' sobre Ratón, Queso o Gato.")
-        #         return
-        #     self.editor_grid[row][col] += "X"
-
-        # elif self.current_tool == "C":  # Gato
-        #     if "X" in current or "G" in current or (row, col) == self.raton_pos:
-        #         print("No se puede colocar 'C' sobre 'X', Queso ('G') o Ratón.")
-        #         return
-        #     if "C" not in current and current_element_count >= 4:
-        #         print(
-        #             f"Límite de 4 elementos alcanzado en [{row},{col}]. No se puede añadir Gato ('C')."
-        #         )
-        #         return
-        #     if "C" not in current:
-        #         self.editor_grid[row][col] = "C" if current == " " else current + "C"
-
-        # elif self.current_tool in ["R", "L", "U", "D"]:
-        #     if self.current_tool not in current and current_element_count >= 4:
-        #         print(
-        #             f"Límite de 4 elementos alcanzado en [{row},{col}]. No se puede añadir Pared ('{self.current_tool}')."
-        #         )
-        #         return
-        #     if self.current_tool not in current:
-        #         self.editor_grid[row][col] = (
-        #             self.current_tool if current == " " else current + self.current_tool
-        #         )
-
-    # def get_final_map_data(self):
-    #     """Obtiene los datos finales del mapa para exportar"""
-    #     if self.raton_pos is None:
-    #         print("ERROR: El Ratón (posición inicial) no ha sido colocado en el mapa.")
-    #         return None, None
-    #     if self.queso_pos is None:
-    #         print("ERROR: El Queso (objetivo) no ha sido colocado en el mapa.")
-    #         return None, None
-
-    #     # Retorna una copia profunda para evitar modificaciones externas accidentales
-    #     final_grid = [row[:] for row in self.editor_grid]
-    #     final_raton_pos = self.raton_pos
-
-    #     print("\n--- Mapa Final Generado ---")
-    #     print("Grid:")
-    #     for r in final_grid:
-    #         print(r)
-    #     print("Posición Inicial Ratón:", final_raton_pos)
-    #     print("Posición Queso:", self.queso_pos)
-    #     print("-------------------------\n")
-
-    #     return final_grid, self.queso_pos, final_raton_pos
-
     def get_final_map_data(self):
         if self.raton_pos is None:
             print("ERROR: El Ratón (posición inicial) no ha sido colocado en el mapa.")
-            return None, None
+            return None, None, None
         if self.queso_pos is None:
             print("ERROR: El Queso (objetivo) no ha sido colocado en el mapa.")
-            return None, None
-        
+            return None, None, None
+
         final_grid = [row[:] for row in self.editor_grid]
-        
+
         print("\n--- Mapa Final Generado ---")
         print("Grid:")
         # Imprimimos cada fila con una coma al final
         for i, r in enumerate(final_grid):
             row_str = str(r)
             if i < len(final_grid) - 1:  # Todas las filas excepto la última llevan coma
-                row_str += ','
+                row_str += ","
             print(row_str)
         print("Posición Inicial Queso:", self.queso_pos)
         print("Posición Inicial Raton", self.raton_pos)
@@ -530,7 +387,7 @@ class ConfigMaze:
             self.render()
             clock.tick(60)
             self.event_pygame()
-            
+
     def event_pygame(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -539,7 +396,7 @@ class ConfigMaze:
                 self.handle_mouse_event(event)
             elif event.type == pygame.KEYDOWN:
                 self.handle_key_event(event)
-                
+
     def render(self):
         self.__screen.fill((255, 255, 255))
         self.draw_grid()
@@ -561,7 +418,6 @@ class ConfigMaze:
                 self.editor_grid[row][col] = " "
 
     def handle_key_event(self, event):
-
         key = event.key
         unicode = event.unicode.lower()
 
@@ -579,14 +435,18 @@ class ConfigMaze:
 
         if key in tool_keys:
             self.current_tool = tool_keys[key]
-        elif unicode in ['r', 'd', 'l', 'u']:
+        elif unicode in ["r", "d", "l", "u"]:
             self.current_tool = unicode.upper()
         elif key == pygame.K_s:
             self.__running = False
-        
 
     def export_map(self):
-        final_map, goal_position ,agent_position, = self.get_final_map_data()
+        (
+            final_map,
+            goal_position,
+            agent_position,
+        ) = self.get_final_map_data()
+
         if final_map and goal_position and agent_position:
             print("¡Mapa exportado a consola!")
             return final_map, goal_position, agent_position
@@ -594,3 +454,4 @@ class ConfigMaze:
             print(
                 "Exportación fallida: Revisa que el ratón y el queso estén colocados."
             )
+
