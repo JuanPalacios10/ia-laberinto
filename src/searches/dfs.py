@@ -48,3 +48,6 @@ class DepthFirstSearch(ISearchStrategy):
                 return True
             node = node.get_parent()
         return False
+
+    def get_search_name(self) -> str:
+        return "Búsqueda por profundidad"
