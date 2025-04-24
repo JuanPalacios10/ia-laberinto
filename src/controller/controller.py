@@ -39,6 +39,7 @@ class Controller:
             "agent_position": self.__agent.get_position(),
             "goal_position": self.__environment.get_goal(),
             "step": self.__step_count,
+            "search_name": self.__agent.get_strategy().get_search_name(),
         }
 
     def set_searches(self, searches: list[ISearchStrategy]) -> None:
@@ -54,7 +55,6 @@ class Controller:
             self.__current_index_search = 0
 
         new_strategy: ISearchStrategy = self.__searches[self.__current_index_search]
-        print(new_strategy)
         self.__agent.set_strategy(new_strategy)
 
     def is_running(self) -> bool:

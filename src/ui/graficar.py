@@ -5,18 +5,19 @@ from ui.config_ui import Colors, Images, Tools, Window
 from constants.maze_options import option_to_string, string_to_option
 from ui.elements import ElementFactory
 
+
 class GraphMaze:
-    def __init__(self, grid: list[list[str]], raton_pos: tuple[int,int]):
-        
+    def __init__(self, grid: list[list[str]], raton_pos: tuple[int, int]):
         # Configuración inicial
         self.ROWS = len(grid)
         self.COLS = len(grid[0]) if self.ROWS > 0 else 0
         self.WIDTH, self.HEIGHT = 600, 600
 
         self.UI_HEIGHT = 3 * 20 + 10  # 3 líneas de 20px + algo de margen
-        self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT + self.UI_HEIGHT))
+        self.screen = pygame.display.set_mode(
+            (self.WIDTH, self.HEIGHT + self.UI_HEIGHT)
+        )
 
-        
         self.CELL_WIDTH = self.WIDTH // self.COLS
         self.CELL_HEIGHT = self.HEIGHT // self.ROWS
         self.CELL_SIZE = min(self.CELL_WIDTH, self.CELL_HEIGHT)  # Para que sea cuadrada
@@ -87,7 +88,7 @@ class GraphMaze:
             return True
         return False
 
-    def draw_ui(self, controller):
+    def draw_ui(self, controller: Controller):
         pygame.draw.rect(
             self.screen,
             (255, 255, 255),
@@ -98,15 +99,23 @@ class GraphMaze:
         x, y = 10, self.HEIGHT + 5
 
         # Línea 1
-        label1 = self.font.render("Búsqueda actual: Por ahora nada", True, (0, 0, 0))
+        label1 = self.font.render(
+            f"Búsqueda actual: {controller.get_state()['search_name']}", True, (0, 0, 0)
+        )
         self.screen.blit(label1, (x, y))
 
         # Línea 2
-        label2 = self.font.render(f"Cantidad de movimientos: {controller.get_state()['step']}", True, (0, 0, 0))
+        label2 = self.font.render(
+            f"Cantidad de movimientos: {controller.get_state()['step']}",
+            True,
+            (0, 0, 0),
+        )
         self.screen.blit(label2, (x, y + line_spacing))
 
         # Línea 3
-        label3 = self.font.render(f"Posición del ratón: {self.raton_pos}", True, (0, 0, 0))
+        label3 = self.font.render(
+            f"Posición del ratón: {self.raton_pos}", True, (0, 0, 0)
+        )
         self.screen.blit(label3, (x, y + 2 * line_spacing))
 
     def run(self, controller: Controller):
@@ -114,33 +123,34 @@ class GraphMaze:
 
         while controller.is_running():
             self.event_pygame(controller)
-            
-            # Se obtiene el nuevo estado del laberinto 
+
+            # Se obtiene el nuevo estado del laberinto
             state = controller.get_state()
-            self.grid = state["maze"].get_map() 
-            self.update_position(state["agent_position"])  
-            
+            self.grid = state["maze"].get_map()
+            self.update_position(state["agent_position"])
+
             self.render(controller)
             clock.tick(60)
 
         pygame.quit()
         sys.exit()
-    
-    def event_pygame(self, controller):
+
+    def event_pygame(self, controller: Controller):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 controller.set_running(False)
             elif event.type == pygame.KEYDOWN:
                 self.handle_key_event(event, controller)
 
-    def handle_key_event(self, event, controller):
+    def handle_key_event(self, event, controller: Controller):
         if event.key == pygame.K_ESCAPE:
             controller.set_running(False)
         elif event.key == pygame.K_SPACE:
             controller.update()
 
-    def render(self, controller):
+    def render(self, controller: Controller):
         self.screen.fill((255, 255, 255))
         self.draw_grid()
         self.draw_ui(controller)
         pygame.display.flip()
+

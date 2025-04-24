@@ -37,3 +37,6 @@ class BreadthFirstSearch(ISearchStrategy):
 
     def get_path(self, node: Optional[Node]) -> list[tuple[int, int]]:
         return Search.get_path(node)
+
+    def get_search_name(self) -> str:
+        return "Búsqueda por amplitud"

@@ -19,6 +19,9 @@ class ISearchStrategy(ABC):
     @abstractmethod
     def get_path(self, node: Optional[Node]) -> list[tuple[int, int]]: ...
 
+    @abstractmethod
+    def get_search_name(self) -> str: ...
+
 
 class Search:
     @staticmethod
