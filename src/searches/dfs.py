@@ -13,12 +13,12 @@ class DepthFirstSearch(ISearchStrategy):
         iterations: int = 0
         stack.append(Node(start))
 
-        while stack:
+        while stack and iterations <= limit_iterations:
             iterations += 1
             current_node = stack.pop()
             current_pos = current_node.get_position()
 
-            if iterations > limit_iterations or current_pos == goal:
+            if current_pos == goal:
                 return self.get_path(current_node)
 
             children = self.get_children(current_pos, maze)

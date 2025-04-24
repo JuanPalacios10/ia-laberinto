@@ -29,6 +29,32 @@ def test_depth_first_search_basic():
     assert path == [(0, 3), (1, 3), (2, 3), (3, 3), (3, 2), (3, 1)]
 
 
+def test_depth_first_search_complex():
+    maze_map = [
+        [" ", " ", " ", " "],
+        ["C", "X", "G", " "],
+        ["D", "X", "X", " "],
+        ["D", "X", "C", "R"],
+    ]
+    maze = Maze(4, 4, maze_map)
+
+    dfs = DepthFirstSearch()
+
+    # Establecer posiciones de inicio y objetivo
+    start = (0, 0)
+    goal = (1, 2)
+
+    # Ejecutar la búsqueda
+    path = dfs.search(start, goal, maze)
+
+    # Verificar que se haya encontrado un camino
+    assert path is not None
+    assert len(path) > 0
+    assert path[0] == start
+    assert path[-1] == goal
+    assert path == [(0, 0), (0, 1), (0, 2), (0, 3), (1, 3), (1, 2)]
+
+
 def test_depth_first_not_solution():
     maze_map = [
         ["R", "R", "D", "D"],

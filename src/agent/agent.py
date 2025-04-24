@@ -20,12 +20,8 @@ class Agent:
     def get_position(self) -> tuple[int, int]:
         return self.__position
 
-    def set_no_solution(self, goal_position: tuple[int, int]) -> None:
-        if self.__path[-1] != goal_position:
-            self.__no_solution = True
-            return None
-
-        self.__no_solution = False
+    def set_no_solution(self, has_solution: bool) -> None:
+        self.__no_solution = has_solution
 
     def get_no_solution(self) -> bool:
         return self.__no_solution
@@ -35,7 +31,6 @@ class Agent:
 
         if path:
             self.__path = path[1:]
-            self.set_no_solution(goal)
             return True
 
         return False
@@ -49,9 +44,11 @@ class Agent:
 
     def move_towards_goal(self, goal: tuple[int, int], maze: IMaze) -> bool:
         if not self.search_path(goal, maze):
+            self.set_no_solution(True)
             self.reset_path()
             return False
 
+        self.set_no_solution(False)
         return self.move_one_step()
 
     def reset_path(self) -> None:

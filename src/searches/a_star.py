@@ -19,12 +19,12 @@ class Astar(ISearchStrategy):
         iterations: int = 0
         heapq.heappush(priority_queue, NodeH(start, None, 0, manhattan(start, goal)))
 
-        while priority_queue:
+        while priority_queue and iterations <= limit_iterations:
             iterations += 1
             current_node = heapq.heappop(priority_queue)
             current_pos = current_node.get_position()
 
-            if iterations > limit_iterations or current_pos == goal:
+            if current_pos == goal:
                 return self.get_path(current_node)
 
             children = self.get_children(current_pos, maze)
