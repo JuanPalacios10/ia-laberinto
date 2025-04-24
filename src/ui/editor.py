@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Callable, Optional
 import pygame
 import sys
 import tkinter as tk
@@ -128,7 +128,7 @@ class ConfigMaze:
                 if option_to_string("OBSTACLE") in cell:
                     ElementFactory.get_element(Tools.OBSTACLE).draw(self.__screen, rect)
                 else:
-                    pygame.draw.rect(self.__screen, Colors.free, rect)
+                    ElementFactory.get_element(Tools.FREE).draw(self.__screen, rect)
 
                 pygame.draw.rect(self.__screen, Colors.division, rect, 1)
                 self.__draw_element(cell, rect)
@@ -199,7 +199,7 @@ class ConfigMaze:
         )
         self.__screen.blit(label, (10, self.__window.height + 10))
 
-    def set_mouse_fix(self, target: str, valid_elements: list[Tools]) -> Optional[str]:
+    def __set_fix(self, target: str, valid_elements: list[Tools]) -> Optional[str]:
         count: int = 0
         message: str = f"No se puede colocar el {self.current_tool} sobre un"
 
@@ -213,6 +213,141 @@ class ConfigMaze:
 
         return message
 
+    def __set_limit_fix(
+        self, row: int, col: int, target: str, limit: int, valid_element: Tools
+    ) -> Optional[str]:
+        message: str | None = None
+
+        if option_to_string(valid_element.name) in target and limit >= 4:
+            message = f"Límite de 4 elementos alcanzado en [{row},{col}]. No se puede añadir {valid_element.value} ({target})."
+
+        return message
+
+    def set_mouse_fix(
+        self,
+        row: int,
+        col: int,
+        target: str,
+        valid_elements: list[Tools],
+    ) -> None:
+        message = self.__set_fix(target, valid_elements)
+
+        if message is not None:
+            print(message)
+            return None
+
+        self.raton_pos = (row, col)
+
+    def set_cheese_fix(
+        self,
+        row: int,
+        col: int,
+        target: str,
+        target_count: int,
+        valid_elements: list[Tools],
+    ) -> None:
+        message = self.__set_fix(target, valid_elements)
+
+        if message is not None:
+            print(message)
+            return None
+
+        message = self.__set_limit_fix(row, col, target, target_count, Tools.CHEESE)
+
+        if message is not None:
+            print(message)
+            return None
+
+        if self.queso_pos is not None and self.queso_pos == (row, col):
+            return None
+
+        if self.queso_pos:
+            goal_row, goal_col = self.queso_pos
+            old_cell_content = self.editor_grid[goal_row][goal_col].replace(
+                option_to_string("CHEESE"), ""
+            )
+
+            self.editor_grid[goal_row][goal_col] = (
+                old_cell_content if old_cell_content.strip() else " "
+            )
+
+        if option_to_string("CHEESE") not in target:
+            self.editor_grid[row][col] = (
+                option_to_string("CHEESE")
+                if target == " "
+                else target + option_to_string("CHEESE")
+            )
+
+        self.queso_pos = (row, col)
+
+    def set_obstacle_fix(
+        self, row: int, col: int, target: str, valid_elements: list[Tools]
+    ) -> None:
+        message: str = f"No se puede colocar un obstáculo sobre un {valid_elements[0].value.lower()}, {valid_elements[1].value.lower()} o {valid_elements[2].value.lower()}."
+
+        if (
+            (row, col) == self.raton_pos
+            or (row, col) == self.queso_pos
+            or option_to_string("CAT") in target
+        ):
+            print(message)
+            return
+
+        self.editor_grid[row][col] += "X"
+
+    def set_cat_fix(
+        self,
+        row: int,
+        col: int,
+        target: str,
+        target_count: int,
+        valid_elements: list[Tools],
+    ) -> None:
+        message = self.__set_fix(target, valid_elements)
+
+        if message is not None or (row, col) == self.raton_pos:
+            print(message)
+            return None
+
+        message = self.__set_limit_fix(row, col, target, target_count, Tools.CAT)
+
+        if message is not None:
+            print(message)
+            return None
+
+        if option_to_string("CAT") in target:
+            return None
+
+        self.editor_grid[row][col] = (
+            option_to_string("CAT") if target == " " else target + "C"
+        )
+
+    def set_free_fix(self, row: int, col: int) -> None:
+        if (row, col) == self.raton_pos:
+            self.raton_pos = None
+
+        if (row, col) == self.queso_pos:
+            self.queso_pos = None
+
+        self.editor_grid[row][col] = " "
+
+    def set_wall_fix(
+        self, row: int, col: int, target: str, target_count: int, valid_element: Tools
+    ) -> None:
+        message = self.__set_limit_fix(row, col, target, target_count, valid_element)
+
+        if message is not None:
+            print(message)
+            return None
+
+        if self.current_tool in target:
+            return None
+
+        current_wall = option_to_string(valid_element.name)
+        self.editor_grid[row][col] = (
+            current_wall if target == " " else target + current_wall
+        )
+
     def set_cell(self, row, col):
         """Modifica el contenido de una celda según la herramienta actual"""
         # Validación de límites
@@ -222,78 +357,123 @@ class ConfigMaze:
 
         current = self.editor_grid[row][col]
         current_element_count = len(current.strip())  # Cuenta los elementos existentes
+        actions: dict[str, Callable[..., None]] = {
+            Tools.MOUSE.value: lambda: self.set_mouse_fix(
+                row, col, current, [Tools.OBSTACLE, Tools.CAT]
+            ),
+            Tools.CHEESE.value: lambda: self.set_cheese_fix(
+                row, col, current, current_element_count, [Tools.OBSTACLE, Tools.CAT]
+            ),
+            Tools.FREE.value: lambda: self.set_free_fix(row, col),
+            Tools.OBSTACLE.value: lambda: self.set_obstacle_fix(
+                row, col, current, [Tools.MOUSE, Tools.CHEESE, Tools.CAT]
+            ),
+            Tools.CAT.value: lambda: self.set_cat_fix(
+                row,
+                col,
+                current,
+                current_element_count,
+                [Tools.OBSTACLE, Tools.CHEESE],
+            ),
+            Tools.UP.value: lambda: self.set_wall_fix(
+                row, col, current, current_element_count, Tools.UP
+            ),
+            Tools.RIGHT.value: lambda: self.set_wall_fix(
+                row, col, current, current_element_count, Tools.RIGHT
+            ),
+            Tools.DOWN.value: lambda: self.set_wall_fix(
+                row, col, current, current_element_count, Tools.DOWN
+            ),
+            Tools.LEFT.value: lambda: self.set_wall_fix(
+                row, col, current, current_element_count, Tools.LEFT
+            ),
+        }
 
-        if self.current_tool == Tools.MOUSE.value:
-            # if "X" in current or "C" in current:
-            #     print("No se puede colocar el ratón sobre 'X' o 'C'.")
-            #     return
-            message = self.__set_in_fix(current, [Tools.OBSTACLE, Tools.CAT])
+        action: Callable[..., None] | None = actions.get(self.current_tool)
 
-            if message is not None:
-                print(message)
-                return
+        if action is not None:
+            action()
 
-            self.raton_pos = (row, col)
+        # if self.current_tool == Tools.MOUSE.value:
+        #     # if "X" in current or "C" in current:
+        #     #     print("No se puede colocar el ratón sobre 'X' o 'C'.")
+        #     #     return
+        #     message = self.__set_in_fix(current, [Tools.OBSTACLE, Tools.CAT])
+        #
+        #     if message is not None:
+        #         print(message)
+        #         return
+        #
+        #     self.raton_pos = (row, col)
+        #
+        # ElementFactory.get_element(Tools.MOUSE).set_cell(
+        #     row=row,
+        #     col=col,
+        #     target=current,
+        #     target_count=current_element_count,
+        #     valid_elements=[Tools.OBSTACLE, Tools.CAT],
+        #     set_element=self.set_mouse_fix,
+        # )
 
-        elif self.current_tool == "queso":
-            if "X" in current or "C" in current:
-                print("No se puede colocar el queso sobre 'X', 'C'.")
-                return
-            if "G" not in current and current_element_count >= 4:
-                print(
-                    f"Límite de 4 elementos alcanzado en [{row},{col}]. No se puede añadir Queso ('G')."
-                )
-                return
-            if self.queso_pos:
-                q_row, q_col = self.queso_pos
-                if 0 <= q_row < self.__window.rows and 0 <= q_col < self.__window.cols:
-                    old_cell_content = self.editor_grid[q_row][q_col].replace("G", "")
-                    self.editor_grid[q_row][q_col] = (
-                        old_cell_content if old_cell_content.strip() else " "
-                    )
-            if "G" not in current:
-                self.editor_grid[row][col] = "G" if current == " " else current + "G"
-            self.queso_pos = (row, col)
+        # if self.current_tool == "queso":
+        #     if "X" in current or "C" in current:
+        #         print("No se puede colocar el queso sobre 'X', 'C'.")
+        #         return
+        #     if "G" not in current and current_element_count >= 4:
+        #         print(
+        #             f"Límite de 4 elementos alcanzado en [{row},{col}]. No se puede añadir Queso ('G')."
+        #         )
+        #         return
+        #     if self.queso_pos:
+        #         q_row, q_col = self.queso_pos
+        #         if 0 <= q_row < self.__window.rows and 0 <= q_col < self.__window.cols:
+        #             old_cell_content = self.editor_grid[q_row][q_col].replace("G", "")
+        #             self.editor_grid[q_row][q_col] = (
+        #                 old_cell_content if old_cell_content.strip() else " "
+        #             )
+        #     if "G" not in current:
+        #         self.editor_grid[row][col] = "G" if current == " " else current + "G"
+        #     self.queso_pos = (row, col)
 
-        elif self.current_tool == "empty":
-            if (row, col) == self.raton_pos:
-                self.raton_pos = None
-            if (row, col) == self.queso_pos:
-                self.queso_pos = None
-            self.editor_grid[row][col] = " "
+        # if self.current_tool == "empty":
+        #     if (row, col) == self.raton_pos:
+        #         self.raton_pos = None
+        #     if (row, col) == self.queso_pos:
+        #         self.queso_pos = None
+        #     self.editor_grid[row][col] = " "
 
-        elif self.current_tool == "X":
-            if (
-                (row, col) == self.raton_pos
-                or (row, col) == self.queso_pos
-                or "C" in current
-            ):
-                print("No se puede colocar 'X' sobre Ratón, Queso o Gato.")
-                return
-            self.editor_grid[row][col] += "X"
+        # elif self.current_tool == "X":
+        #     if (
+        #         (row, col) == self.raton_pos
+        #         or (row, col) == self.queso_pos
+        #         or "C" in current
+        #     ):
+        #         print("No se puede colocar 'X' sobre Ratón, Queso o Gato.")
+        #         return
+        #     self.editor_grid[row][col] += "X"
 
-        elif self.current_tool == "C":  # Gato
-            if "X" in current or "G" in current or (row, col) == self.raton_pos:
-                print("No se puede colocar 'C' sobre 'X', Queso ('G') o Ratón.")
-                return
-            if "C" not in current and current_element_count >= 4:
-                print(
-                    f"Límite de 4 elementos alcanzado en [{row},{col}]. No se puede añadir Gato ('C')."
-                )
-                return
-            if "C" not in current:
-                self.editor_grid[row][col] = "C" if current == " " else current + "C"
+        # elif self.current_tool == "C":  # Gato
+        #     if "X" in current or "G" in current or (row, col) == self.raton_pos:
+        #         print("No se puede colocar 'C' sobre 'X', Queso ('G') o Ratón.")
+        #         return
+        #     if "C" not in current and current_element_count >= 4:
+        #         print(
+        #             f"Límite de 4 elementos alcanzado en [{row},{col}]. No se puede añadir Gato ('C')."
+        #         )
+        #         return
+        #     if "C" not in current:
+        #         self.editor_grid[row][col] = "C" if current == " " else current + "C"
 
-        elif self.current_tool in ["R", "L", "U", "D"]:
-            if self.current_tool not in current and current_element_count >= 4:
-                print(
-                    f"Límite de 4 elementos alcanzado en [{row},{col}]. No se puede añadir Pared ('{self.current_tool}')."
-                )
-                return
-            if self.current_tool not in current:
-                self.editor_grid[row][col] = (
-                    self.current_tool if current == " " else current + self.current_tool
-                )
+        # elif self.current_tool in ["R", "L", "U", "D"]:
+        #     if self.current_tool not in current and current_element_count >= 4:
+        #         print(
+        #             f"Límite de 4 elementos alcanzado en [{row},{col}]. No se puede añadir Pared ('{self.current_tool}')."
+        #         )
+        #         return
+        #     if self.current_tool not in current:
+        #         self.editor_grid[row][col] = (
+        #             self.current_tool if current == " " else current + self.current_tool
+        #         )
 
     def get_final_map_data(self):
         """Obtiene los datos finales del mapa para exportar"""
@@ -351,21 +531,21 @@ class ConfigMaze:
                     elif event.key == pygame.K_2:
                         self.current_tool = Tools.CHEESE.value
                     elif event.key == pygame.K_3:
-                        self.current_tool = "X"
+                        self.current_tool = Tools.OBSTACLE.value
                     elif event.key == pygame.K_4:
-                        self.current_tool = "C"
+                        self.current_tool = Tools.CAT.value
 
                     elif event.unicode.lower() == "r":
-                        self.current_tool = "R"
+                        self.current_tool = Tools.RIGHT.value
                     elif event.unicode.lower() == "d":
-                        self.current_tool = "D"
+                        self.current_tool = Tools.DOWN.value
                     elif event.unicode.lower() == "l":
-                        self.current_tool = "L"
+                        self.current_tool = Tools.LEFT.value
                     elif event.unicode.lower() == "u":
-                        self.current_tool = "U"
+                        self.current_tool = Tools.UP.value
 
                     elif event.key == pygame.K_0:
-                        self.current_tool = "empty"
+                        self.current_tool = Tools.FREE.value
 
                     elif event.key == pygame.K_s:
                         final_map, start_pos = self.get_final_map_data()

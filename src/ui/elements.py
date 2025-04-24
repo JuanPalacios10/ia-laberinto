@@ -12,15 +12,6 @@ class Element(ABC):
         rect: pygame.Rect,
     ) -> None: ...
 
-    @abstractmethod
-    def set_cell(
-        self,
-        target: str,
-        target_count: int,
-        valid_elements: list[str],
-        set_element: Callable[..., Optional[str]],
-    ) -> bool: ...
-
 
 class Mouse(Element):
     def draw(
@@ -56,6 +47,15 @@ class Cheese(Element):
         rect: pygame.Rect,
     ) -> None:
         screen.blit(Images.cheese, rect.topleft)
+
+
+class Free(Element):
+    def draw(
+        self,
+        screen: pygame.Surface,
+        rect: pygame.Rect,
+    ) -> None:
+        pygame.draw.rect(screen, Colors.free, rect)
 
 
 class WallUp(Element):
@@ -129,6 +129,8 @@ class ElementFactory:
             return Cat()
         elif element_type == Tools.CHEESE:
             return Cheese()
+        elif element_type == Tools.FREE:
+            return Free()
         elif element_type == Tools.UP:
             return WallUp()
         elif element_type == Tools.RIGHT:

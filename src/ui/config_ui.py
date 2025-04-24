@@ -22,7 +22,6 @@ class Colors:
 
 
 class Tools(str, Enum):
-    EMPTY = "Borrar"
     FREE = "Libre"
     MOUSE = "Ratón"
     CHEESE = "Queso"
