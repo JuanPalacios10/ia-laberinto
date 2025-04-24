@@ -12,15 +12,6 @@ class Element(ABC):
         rect: pygame.Rect,
     ) -> None: ...
 
-    @abstractmethod
-    def set_cell(
-        self,
-        target: str,
-        target_count: int,
-        valid_elements: list[str],
-        set_element: Callable[..., Optional[str]],
-    ) -> bool: ...
-
 
 class Mouse(Element):
     def draw(
