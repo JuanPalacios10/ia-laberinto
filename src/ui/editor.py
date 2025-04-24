@@ -224,15 +224,10 @@ class ConfigMaze:
         current_element_count = len(current.strip())  # Cuenta los elementos existentes
 
         if self.current_tool == Tools.MOUSE.value:
-            # if "X" in current or "C" in current:
-            #     print("No se puede colocar el ratón sobre 'X' o 'C'.")
-            #     return
-            message = self.__set_in_fix(current, [Tools.OBSTACLE, Tools.CAT])
-
-            if message is not None:
-                print(message)
+            if "X" in current or "C" in current:
+                print("No se puede colocar el ratón sobre 'X' o 'C'.")
                 return
-
+            
             self.raton_pos = (row, col)
 
         elif self.current_tool == "queso":
@@ -295,83 +290,122 @@ class ConfigMaze:
                     self.current_tool if current == " " else current + self.current_tool
                 )
 
+    # def get_final_map_data(self):
+    #     """Obtiene los datos finales del mapa para exportar"""
+    #     if self.raton_pos is None:
+    #         print("ERROR: El Ratón (posición inicial) no ha sido colocado en el mapa.")
+    #         return None, None
+    #     if self.queso_pos is None:
+    #         print("ERROR: El Queso (objetivo) no ha sido colocado en el mapa.")
+    #         return None, None
+
+    #     # Retorna una copia profunda para evitar modificaciones externas accidentales
+    #     final_grid = [row[:] for row in self.editor_grid]
+    #     final_raton_pos = self.raton_pos
+
+    #     print("\n--- Mapa Final Generado ---")
+    #     print("Grid:")
+    #     for r in final_grid:
+    #         print(r)
+    #     print("Posición Inicial Ratón:", final_raton_pos)
+    #     print("Posición Queso:", self.queso_pos)
+    #     print("-------------------------\n")
+
+    #     return final_grid, self.queso_pos, final_raton_pos
+
     def get_final_map_data(self):
-        """Obtiene los datos finales del mapa para exportar"""
         if self.raton_pos is None:
             print("ERROR: El Ratón (posición inicial) no ha sido colocado en el mapa.")
             return None, None
         if self.queso_pos is None:
             print("ERROR: El Queso (objetivo) no ha sido colocado en el mapa.")
             return None, None
-
-        # Retorna una copia profunda para evitar modificaciones externas accidentales
+        
         final_grid = [row[:] for row in self.editor_grid]
-        final_raton_pos = self.raton_pos
-
+        
         print("\n--- Mapa Final Generado ---")
         print("Grid:")
-        for r in final_grid:
-            print(r)
-        print("Posición Inicial Ratón:", final_raton_pos)
+        # Imprimimos cada fila con una coma al final
+        for i, r in enumerate(final_grid):
+            row_str = str(r)
+            if i < len(final_grid) - 1:  # Todas las filas excepto la última llevan coma
+                row_str += ','
+            print(row_str)
+        print("Posición Inicial Queso:", self.queso_pos)
+        print("Posición Inicial Raton", self.raton_pos)
         print("-------------------------\n")
 
-        return final_grid, final_raton_pos
+        return final_grid, self.queso_pos, self.raton_pos
 
     def run(self):
-        """Bucle principal del editor"""
         clock = pygame.time.Clock()
-        running = True
+        self.__running = True
 
-        while running:
-            self.__screen.fill((255, 255, 255))
-            self.draw_grid()
-            self.draw_ui()
-            pygame.display.flip()
+        while self.__running:
+            self.render()
             clock.tick(60)
+            self.event_pygame()
+            
+    def event_pygame(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.quit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                self.handle_mouse_event(event)
+            elif event.type == pygame.KEYDOWN:
+                self.handle_key_event(event)
+                
+    def render(self):
+        self.__screen.fill((255, 255, 255))
+        self.draw_grid()
+        self.draw_ui()
+        pygame.display.flip()
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                    pygame.quit()
-                    sys.exit()
+    def quit(self):
+        pygame.quit()
+        sys.exit()
 
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    x, y = pygame.mouse.get_pos()
-                    if y < self.__window.height:
-                        row = y // self.__cell_size
-                        col = x // self.__cell_size
-                        if event.button == 1:
-                            self.set_cell(row, col)
-                        elif event.button == 3:
-                            self.editor_grid[row][col] = " "
+    def handle_mouse_event(self, event):
+        x, y = pygame.mouse.get_pos()
+        if y < self.__window.height:
+            row = y // self.__cell_size
+            col = x // self.__cell_size
+            if event.button == 1:
+                self.set_cell(row, col)
+            elif event.button == 3:
+                self.editor_grid[row][col] = " "
 
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_1:
-                        self.current_tool = Tools.MOUSE.value
-                    elif event.key == pygame.K_2:
-                        self.current_tool = Tools.CHEESE.value
-                    elif event.key == pygame.K_3:
-                        self.current_tool = "X"
-                    elif event.key == pygame.K_4:
-                        self.current_tool = "C"
+    def handle_key_event(self, event):
 
-                    elif event.unicode.lower() == "r":
-                        self.current_tool = "R"
-                    elif event.unicode.lower() == "d":
-                        self.current_tool = "D"
-                    elif event.unicode.lower() == "l":
-                        self.current_tool = "L"
-                    elif event.unicode.lower() == "u":
-                        self.current_tool = "U"
+        key = event.key
+        unicode = event.unicode.lower()
 
-                    elif event.key == pygame.K_0:
-                        self.current_tool = "empty"
+        tool_keys = {
+            pygame.K_1: Tools.MOUSE.value,
+            pygame.K_2: Tools.CHEESE.value,
+            pygame.K_3: Tools.OBSTACLE.value,
+            pygame.K_4: Tools.CAT.value,
+            pygame.K_0: Tools.FREE.value,
+            ord("r"): Tools.RIGHT.value,
+            ord("d"): Tools.DOWN.value,
+            ord("l"): Tools.LEFT.value,
+            ord("u"): Tools.UP.value,
+        }
 
-                    elif event.key == pygame.K_s:
-                        final_map, start_pos = self.get_final_map_data()
-                        if final_map and start_pos:
-                            print("¡Mapa exportado a consola!")
-                        else:
-                            print(
-                                "Exportación fallida: Revisa que el ratón y el queso estén colocados."
-                            )
+        if key in tool_keys:
+            self.current_tool = tool_keys[key]
+        elif unicode in ['r', 'd', 'l', 'u']:
+            self.current_tool = unicode.upper()
+        elif key == pygame.K_s:
+            self.__running = False
+        
+
+    def export_map(self):
+        final_map, goal_position ,agent_position, = self.get_final_map_data()
+        if final_map and goal_position and agent_position:
+            print("¡Mapa exportado a consola!")
+            return final_map, goal_position, agent_position
+        else:
+            print(
+                "Exportación fallida: Revisa que el ratón y el queso estén colocados."
+            )

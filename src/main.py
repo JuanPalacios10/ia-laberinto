@@ -1,4 +1,4 @@
-from ui.ui import EditorLaberinto
+from ui.editor import ConfigMaze, create_window
 from controller.controller import Controller
 from environment.environment import Environment
 from maze.maze import Maze
@@ -6,13 +6,16 @@ from agent.agent import Agent
 from searches.search_strategy import ISearchStrategy
 from searches.bfs import BreadthFirstSearch
 from searches.a_star import Astar
-from ui.graficar import GraficarLaberinto
+from ui.graficar import GraphMaze
 
 def main():
     
+    window = create_window()
+
     #crear laberinto
-    editor = EditorLaberinto()
-    map, goal_position, start_position,  = editor.run()
+    editor = ConfigMaze(window)
+    editor.run()
+    map, goal_position, start_position,  = editor.export_map()
     print(map, goal_position, start_position)
 
     row = len(map)
@@ -28,9 +31,8 @@ def main():
     #crear controlador
     controller = Controller(ambiente, agent, maze)
 
-    graficador = GraficarLaberinto(map, start_position)
+    graficador = GraphMaze(map, start_position)
     graficador.run(controller)
-    
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     main()

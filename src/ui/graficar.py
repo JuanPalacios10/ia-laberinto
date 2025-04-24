@@ -2,7 +2,7 @@ import pygame
 import sys
 from controller.controller import Controller
 
-class GraficarLaberinto:
+class GraphMaze:
     def __init__(self, grid: list[list[str]], raton_pos: tuple[int,int]):
         
         # Configuración inicial
@@ -101,7 +101,6 @@ class GraficarLaberinto:
                     pygame.draw.circle(self.screen, self.RED, rect.center, self.CELL_SIZE//3)
 
     def update_position(self, new_pos):
-        """Actualiza la posición del ratón"""
         if 0 <= new_pos[0] < self.ROWS and 0 <= new_pos[1] < self.COLS:
             self.current_pos = new_pos
             return True
