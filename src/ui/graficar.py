@@ -102,7 +102,7 @@ class GraphMaze:
         self.screen.blit(label1, (x, y))
 
         # Línea 2
-        label2 = self.font.render(f"Cantidad de movimientos: {controller.get_state()["step"]}", True, (0, 0, 0))
+        label2 = self.font.render(f"Cantidad de movimientos: {controller.get_state()['step']}", True, (0, 0, 0))
         self.screen.blit(label2, (x, y + line_spacing))
 
         # Línea 3
