@@ -153,4 +153,3 @@ class GraphMaze:
         self.draw_grid()
         self.draw_ui(controller)
         pygame.display.flip()
-

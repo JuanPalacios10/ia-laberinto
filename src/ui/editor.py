@@ -448,10 +448,8 @@ class ConfigMaze:
         ) = self.get_final_map_data()
 
         if final_map and goal_position and agent_position:
-            print("¡Mapa exportado a consola!")
             return final_map, goal_position, agent_position
         else:
             print(
                 "Exportación fallida: Revisa que el ratón y el queso estén colocados."
             )
-
