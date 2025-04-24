@@ -9,13 +9,16 @@ class DepthFirstSearch(ISearchStrategy):
         self, start: tuple[int, int], goal: tuple[int, int], maze: IMaze
     ) -> Optional[list[tuple[int, int]]]:
         stack: list[Node] = []
+        limit_iterations: int = maze.get_len() * 100
+        iterations: int = 0
         stack.append(Node(start))
 
         while stack:
+            iterations += 1
             current_node = stack.pop()
             current_pos = current_node.get_position()
 
-            if current_pos == goal:
+            if iterations > limit_iterations or current_pos == goal:
                 return self.get_path(current_node)
 
             children = self.get_children(current_pos, maze)

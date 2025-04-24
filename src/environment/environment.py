@@ -22,6 +22,7 @@ class Environment:
             for pos in self.__maze.get_free_positions(option_to_string("CHEESE"))
             if pos != self.__agent.get_position()
         ]
+
         if not free_positions:
             return None
 
