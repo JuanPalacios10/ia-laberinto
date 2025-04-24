@@ -49,6 +49,15 @@ class Cheese(Element):
         screen.blit(Images.cheese, rect.topleft)
 
 
+class Free(Element):
+    def draw(
+        self,
+        screen: pygame.Surface,
+        rect: pygame.Rect,
+    ) -> None:
+        pygame.draw.rect(screen, Colors.free, rect)
+
+
 class WallUp(Element):
     def draw(
         self,
@@ -120,6 +129,8 @@ class ElementFactory:
             return Cat()
         elif element_type == Tools.CHEESE:
             return Cheese()
+        elif element_type == Tools.FREE:
+            return Free()
         elif element_type == Tools.UP:
             return WallUp()
         elif element_type == Tools.RIGHT:
