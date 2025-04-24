@@ -1,6 +1,9 @@
 import pygame
 import sys
 from controller.controller import Controller
+from ui.config_ui import Colors, Images, Tools, Window
+from constants.maze_options import option_to_string, string_to_option
+from ui.elements import ElementFactory
 
 class GraphMaze:
     def __init__(self, grid: list[list[str]], raton_pos: tuple[int,int]):
@@ -9,21 +12,17 @@ class GraphMaze:
         self.ROWS = len(grid)
         self.COLS = len(grid[0]) if self.ROWS > 0 else 0
         self.WIDTH, self.HEIGHT = 600, 600
+
+        self.UI_HEIGHT = 3 * 20 + 10  # 3 líneas de 20px + algo de margen
+        self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT + self.UI_HEIGHT))
+
         
         self.CELL_WIDTH = self.WIDTH // self.COLS
         self.CELL_HEIGHT = self.HEIGHT // self.ROWS
         self.CELL_SIZE = min(self.CELL_WIDTH, self.CELL_HEIGHT)  # Para que sea cuadrada
 
-        # Colores (los mismos que en el editor para consistencia)
-        self.WHITE = (255, 255, 255)
-        self.GRAY = (200, 200, 200)
-        self.BLACK = (0, 0, 0)
-        self.DARK_GRAY = (120, 120, 120)  # Para paredes 'X'
-        self.RED = (255, 0, 0)  # Para resaltar el ratón
-
         # Inicializar pygame
         pygame.init()
-        self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         pygame.display.set_caption("Visualizador de Laberinto")
         self.font = pygame.font.SysFont("Arial", 20)
 
@@ -32,103 +31,116 @@ class GraphMaze:
         self.raton_pos = raton_pos
         self.current_pos = raton_pos  # Posición actual del ratón (puede moverse)
 
-        # Cargar imágenes (asegúrate de tener estas imágenes en la carpeta assets)
-        try:
-            self.raton_img = pygame.image.load("assets/mouse.png")
-            self.queso_img = pygame.image.load("assets/cheese.png")
-            self.gato_img = pygame.image.load("assets/cat.png")
-            
-            self.raton_img = pygame.transform.scale(self.raton_img, (self.CELL_SIZE, self.CELL_SIZE))
-            self.queso_img = pygame.transform.scale(self.queso_img, (self.CELL_SIZE, self.CELL_SIZE))
-            self.gato_img = pygame.transform.scale(self.gato_img, (self.CELL_SIZE, self.CELL_SIZE))
-        except:
-            print("Advertencia: No se pudieron cargar las imágenes. Usando formas geométricas.")
-            self.raton_img = None
-            self.queso_img = None
-            self.gato_img = None
+        Images.set_scale(self.CELL_SIZE)
+
+    def __draw_element(self, cell: str, rect: pygame.Rect) -> None:
+        for element in cell:
+            if element == option_to_string("OBSTACLE") or element == option_to_string(
+                "FREE"
+            ):
+                continue
+
+            tool = string_to_option(element)
+
+            if tool is None:
+                return None
+
+            ElementFactory.get_element(Tools[tool]).draw(self.screen, rect)
 
     def draw_grid(self):
-        """Dibuja el laberinto completo"""
         for row in range(self.ROWS):
             for col in range(self.COLS):
                 cell = self.grid[row][col]
-                rect = pygame.Rect(col * self.CELL_SIZE, row * self.CELL_SIZE, 
-                                  self.CELL_SIZE, self.CELL_SIZE)
+                rect = pygame.Rect(
+                    col * self.CELL_SIZE,
+                    row * self.CELL_SIZE,
+                    self.CELL_SIZE,
+                    self.CELL_SIZE,
+                )
 
-                # Dibujar fondo de la celda
-                if "X" in cell:
-                    pygame.draw.rect(self.screen, self.DARK_GRAY, rect)
+                if option_to_string("OBSTACLE") in cell:
+                    ElementFactory.get_element(Tools.OBSTACLE).draw(self.screen, rect)
                 else:
-                    pygame.draw.rect(self.screen, self.WHITE, rect)
+                    ElementFactory.get_element(Tools.FREE).draw(self.screen, rect)
 
-                pygame.draw.rect(self.screen, self.GRAY, rect, 1)  # Borde
+                pygame.draw.rect(self.screen, Colors.division, rect, 1)
+                self.__draw_element(cell, rect)
 
-                # Dibujar elementos de la celda
-                for element in cell:
-                    if element == "C":  # Gato
-                        if self.gato_img:
-                            self.screen.blit(self.gato_img, rect.topleft)
-                        else:
-                            pygame.draw.circle(self.screen, self.BLACK, rect.center, self.CELL_SIZE//3)
-                    elif element == "G":  # Queso
-                        if self.queso_img:
-                            self.screen.blit(self.queso_img, rect.topleft)
-                        else:
-                            pygame.draw.polygon(self.screen, (255, 255, 0), [
-                                (rect.left + rect.width//2, rect.top),
-                                (rect.right, rect.top + rect.height//2),
-                                (rect.left + rect.width//2, rect.bottom),
-                                (rect.left, rect.top + rect.height//2)
-                            ])
-                    elif element == "R":  # Pared derecha
-                        pygame.draw.line(self.screen, self.BLACK, rect.topright, rect.bottomright, 8)
-                    elif element == "L":  # Pared izquierda
-                        pygame.draw.line(self.screen, self.BLACK, rect.topleft, rect.bottomleft, 4)
-                    elif element == "U":  # Pared arriba
-                        pygame.draw.line(self.screen, self.BLACK, rect.topleft, rect.topright, 4)
-                    elif element == "D":  # Pared abajo
-                        pygame.draw.line(self.screen, self.BLACK, rect.bottomleft, rect.bottomright, 8)
+        if self.raton_pos:  # Dibujar el ratón al final para que esté encima de todo
+            row, col = self.raton_pos
 
-        # Dibujar posición actual del ratón
-        if self.current_pos:
-            row, col = self.current_pos
-            if 0 <= row < self.ROWS and 0 <= col < self.COLS:
-                rect = pygame.Rect(col * self.CELL_SIZE, row * self.CELL_SIZE, 
-                                 self.CELL_SIZE, self.CELL_SIZE)
-                if self.raton_img:
-                    self.screen.blit(self.raton_img, rect.topleft)
-                else:
-                    pygame.draw.circle(self.screen, self.RED, rect.center, self.CELL_SIZE//3)
+            if not 0 <= row < self.ROWS or not 0 <= col < self.ROWS:
+                return
+
+            rect = pygame.Rect(
+                col * self.CELL_SIZE,
+                row * self.CELL_SIZE,
+                self.CELL_SIZE,
+                self.CELL_SIZE,
+            )
+
+            ElementFactory.get_element(Tools.MOUSE).draw(self.screen, rect)
 
     def update_position(self, new_pos):
         if 0 <= new_pos[0] < self.ROWS and 0 <= new_pos[1] < self.COLS:
-            self.current_pos = new_pos
+            self.raton_pos = new_pos
             return True
         return False
-    
+
+    def draw_ui(self, controller):
+        pygame.draw.rect(
+            self.screen,
+            (255, 255, 255),
+            (0, self.HEIGHT, self.WIDTH, self.UI_HEIGHT),
+        )
+
+        line_spacing = 20  # Espacio entre líneas
+        x, y = 10, self.HEIGHT + 5
+
+        # Línea 1
+        label1 = self.font.render("Búsqueda actual: Por ahora nada", True, (0, 0, 0))
+        self.screen.blit(label1, (x, y))
+
+        # Línea 2
+        label2 = self.font.render(f"Cantidad de movimientos: {controller.get_state()["step"]}", True, (0, 0, 0))
+        self.screen.blit(label2, (x, y + line_spacing))
+
+        # Línea 3
+        label3 = self.font.render(f"Posición del ratón: {self.raton_pos}", True, (0, 0, 0))
+        self.screen.blit(label3, (x, y + 2 * line_spacing))
 
     def run(self, controller: Controller):
         clock = pygame.time.Clock()
 
         while controller.is_running():
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    controller.set_running(False)
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        controller.set_running(False)
-                    elif event.key == pygame.K_SPACE:
-                        controller.update()
+            self.event_pygame(controller)
             
             # Se obtiene el nuevo estado del laberinto 
             state = controller.get_state()
             self.grid = state["maze"].get_map() 
             self.update_position(state["agent_position"])  
             
-            self.screen.fill(self.WHITE)
-            self.draw_grid()
-            pygame.display.flip()
+            self.render(controller)
             clock.tick(60)
 
         pygame.quit()
         sys.exit()
+    
+    def event_pygame(self, controller):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                controller.set_running(False)
+            elif event.type == pygame.KEYDOWN:
+                self.handle_key_event(event, controller)
+
+    def handle_key_event(self, event, controller):
+        if event.key == pygame.K_ESCAPE:
+            controller.set_running(False)
+        elif event.key == pygame.K_SPACE:
+            controller.update()
+
+    def render(self, controller):
+        self.screen.fill((255, 255, 255))
+        self.draw_grid()
+        self.draw_ui(controller)
+        pygame.display.flip()
