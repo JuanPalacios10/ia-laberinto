@@ -13,7 +13,7 @@ class GraphMaze:
         self.COLS = len(grid[0]) if self.ROWS > 0 else 0
         self.WIDTH, self.HEIGHT = 600, 600
 
-        self.UI_HEIGHT = 4 * 20 + 10  # 3 líneas de 20px + algo de margen
+        self.UI_HEIGHT = 4 * 20 + 10  # 4 líneas de 20px + algo de margen
         self.screen = pygame.display.set_mode(
             (self.WIDTH, self.HEIGHT + self.UI_HEIGHT)
         )
